@@ -20,40 +20,25 @@ const Sidebar = () => {
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
       try {
-        // Effectuer la requête POST pour se déconnecter
         const res = await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
-          credentials: 'include',  // Assure-toi que les cookies sont envoyés avec la requête
+          credentials: 'include', // Inclure les cookies
         });
-  
-        // Vérifier que la réponse est correcte (status 200)
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Logout failed');
-        }
-  
-        // Si la déconnexion réussit, on renvoie les données du serveur
         const data = await res.json();
-        console.log(data); // Afficher le message du serveur pour la confirmation
-        return data;
+        console.log(data); // Afficher la réponse pour vérifier que le message est reçu
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
       } catch (error) {
-        // Gérer les erreurs (réseau ou autre)
-        throw new Error(error.message || 'Network error');
+        throw new Error(error);
       }
     },
     onSuccess: () => {
-      // Une fois la déconnexion réussie, invalide les données liées à l'utilisateur
       queryClient.invalidateQueries({ queryKey: ['authUser'] });
-  
-      // Rediriger ou effectuer d'autres actions, par exemple vers la page de login
-      toast.success('Successfully logged out');
     },
-    onError: (error) => {
-      // Si une erreur survient pendant la déconnexion, afficher un message d'erreur
-      toast.error(`Logout failed: ${error.message}`);
+    onError: () => {
+      toast.error('Logout failed');
     },
   });
-  
+
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });
   
   // Ajout de la requête pour le compteur de notifications non lues

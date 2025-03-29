@@ -4,6 +4,9 @@ import { io } from 'socket.io-client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
@@ -17,7 +20,7 @@ export const SocketProvider = ({ children }) => {
     if (!authUser) return;
 
     // Connexion à Socket.IO
-    const socketInstance = io('http://localhost:5000', {
+    const socketInstance = io(`${API_URL}`, {
       withCredentials: true
     });
 

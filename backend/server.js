@@ -84,7 +84,8 @@ cloudinary.config({
 });
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+
 const __dirname = path.resolve();
 
 // Créer un serveur HTTP à partir de l'app Express
@@ -93,7 +94,9 @@ const server = http.createServer(app);
 // Initialiser Socket.IO avec le serveur HTTP
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // URL de votre frontend
+    origin: process.env.NODE_ENV === 'production' 
+      ? 'https://hacktweet.vercel.app' 
+      : 'http://localhost:3000',
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -134,7 +137,9 @@ app.use(cookieParser());
 
 // Configure CORS with credentials support
 app.use(cors({
-  origin: 'http://localhost:3000', // Your frontend URL
+  origin: process.env.NODE_ENV === 'production' 
+  ? 'https://hacktweet.vercel.app' 
+  : 'http://localhost:3000', // Your frontend URL
   credentials: true,               // Allow credentials
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

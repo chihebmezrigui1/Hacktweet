@@ -26,7 +26,7 @@ const PostDetail = () => {
     queryKey: ["post", id],
     queryFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/${id}`);
+        const res = await fetch(`${API_URL}/api/posts/${id}`,{credentials: 'include'});
         const data = await res.json();
         
         if (!res.ok) {
@@ -45,6 +45,7 @@ const PostDetail = () => {
       try {
         const res = await fetch(`${API_URL}/api/posts/${id}`, {
           method: "DELETE",
+          credentials: 'include'
         });
         const data = await res.json();
 
@@ -71,6 +72,7 @@ const PostDetail = () => {
       try {
         const res = await fetch(`${API_URL}/api/posts/like/${id}`, {
           method: "POST",
+          credentials: 'include'
         });
         const data = await res.json();
         if (!res.ok) {
@@ -101,6 +103,7 @@ const PostDetail = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ text: comment }),
+          credentials: 'include'
         });
         const data = await res.json();
 

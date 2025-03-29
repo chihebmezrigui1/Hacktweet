@@ -14,7 +14,7 @@ const BookmarkedPosts = () => {
     queryKey: ["bookmarkedPosts"],
     queryFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/bookmarks`);
+        const res = await fetch(`${API_URL}/api/posts/bookmarks`,{credentials: 'include'});
         const data = await res.json();
 
         if (!res.ok) {

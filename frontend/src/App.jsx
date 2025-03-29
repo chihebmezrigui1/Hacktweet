@@ -25,38 +25,49 @@ function App() {
 			const res = await fetch(`${API_URL}/api/auth/me`, {
 			  credentials: 'include',  // Crucial pour envoyer les cookies d'authentification
 			  headers: {
-				'Content-Type': 'application/json'
-			  }
+				'Content-Type': 'application/json',
+			  },
 			});
 			
-			// Vérifier d'abord le statut de la réponse
+			// Si l'utilisateur n'est pas authentifié, renvoie null
 			if (res.status === 401) {
 			  console.log("Non authentifié (401) **");
 			  return null;
 			}
-			
+	  
 			if (!res.ok) {
 			  console.error("Erreur API:", res.status);
 			  return null;
 			}
-			
-			// Seulement essayer de parser la réponse si le statut est OK
+	  
+			// Si la réponse est correcte, renvoie les données de l'utilisateur
 			const data = await res.json();
-			
-			if (data.error) {
-			  console.error("Erreur retournée par l'API:", data.error);
-			  return null;
-			}
-			
-			console.log("Utilisateur authentifié:", data);
 			return data;
 		  } catch (error) {
 			console.error("Erreur réseau ou JSON:", error);
-			return null;  // Retourner null plutôt que de lancer une erreur
+			return null; // Retourner null plutôt que de lancer une erreur
 		  }
 		},
 		retry: false,
 	  });
+	  
+	  if (isLoading) {
+		return (
+		  <div className="h-screen flex justify-center items-center">
+			<LoadingSpinner size="lg" />
+		  </div>
+		);
+	  }
+	  
+	  
+	  if (isLoading) {
+		return (
+		  <div className="h-screen flex justify-center items-center">
+			<LoadingSpinner size="lg" />
+		  </div>
+		);
+	  }
+	  
 
 	if (isLoading) {
 		return (

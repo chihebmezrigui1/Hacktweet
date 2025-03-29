@@ -17,27 +17,35 @@ const Sidebar = () => {
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
   };
 
-  const { mutate: logout } = useMutation({
+  const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
-          credentials: 'include', // Inclure les cookies
+          credentials: 'include',
         });
         const data = await res.json();
-        console.log(data); // Afficher la réponse pour vérifier que le message est reçu
+        console.log(data); // Vérifie que la déconnexion a bien eu lieu
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
       } catch (error) {
         throw new Error(error);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['authUser'] });
+      // Invalide le cache de la requête d'utilisateur pour forcer la mise à jour
+      queryClient.invalidateQueries(['authUser']);
+      // Rediriger vers la page de connexion après la déconnexion
+      window.location.href = '/login'; // Tu peux aussi utiliser `useNavigate()`
     },
     onError: () => {
       toast.error('Logout failed');
     },
   });
+
+  const logout = async () => {
+    await logoutMutation();  // Exécute la mutation de déconnexion
+    navigate('/login'); // Redirige vers la page de login après la déconnexion
+  };
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });
   

@@ -94,9 +94,28 @@ const server = http.createServer(app);
 // Initialiser Socket.IO avec le serveur HTTP
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://hacktweet.vercel.app', 'https://hacktweet-2l11-5qw03e378-chihebmezrigui1s-projects.vercel.app']
-      : 'http://localhost:3000',
+    origin: function(origin, callback) {
+      // Autorise les requêtes sans origine (comme Postman)
+      if (!origin) return callback(null, true);
+      
+      // Liste de domaines autorisés
+      const allowedDomains = [
+        'http://localhost:3000',
+        'https://hacktweet.vercel.app'
+      ];
+      
+      // Autorise également tous les sous-domaines de vercel.app contenant 'hacktweet'
+      if (origin.includes('hacktweet') && origin.includes('vercel.app')) {
+        return callback(null, true);
+      }
+      
+      // Vérifie si l'origine est dans la liste des domaines autorisés
+      if (allowedDomains.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+      
+      callback(new Error('Bloqué par la politique CORS'));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]

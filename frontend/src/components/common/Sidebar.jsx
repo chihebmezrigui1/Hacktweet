@@ -48,6 +48,7 @@ const Sidebar = () => {
     onSuccess: () => {
       console.log("Déconnexion réussie");
       queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
+      queryClient.clear();
       navigate('/login'); // Rediriger vers la page de login après déconnexion
     },
     onError: (error) => {
@@ -57,7 +58,8 @@ const Sidebar = () => {
   });
   // Fonction pour gérer la déconnexion
   const logout = async () => {
-    await logoutMutation();  // Exécuter la mutation de déconnexion
+    await logoutMutation();
+    window.location.reload();  // Exécuter la mutation de déconnexion
   };
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });

@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 
@@ -57,6 +57,14 @@ function App() {
 		},
 		retry: false,
 	  });
+
+	  const navigate = useNavigate()
+	  useEffect(() => {
+		const isAuthenticated = !!localStorage.getItem('jwt');
+		if (!isAuthenticated) {
+		  navigate('/login');
+		}
+	  }, []);
 
 	if (isLoading) {
 		return (

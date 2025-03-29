@@ -1,0 +1,7 @@
+# /public/_headers
+/*.js
+  Content-Type: text/javascript
+/*.css
+  Content-Type: text/css
+/*.mjs
+  Content-Type: text/javascript

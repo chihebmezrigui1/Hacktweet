@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MdHomeFilled } from 'react-icons/md';
 import { IoNotifications } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
@@ -16,6 +16,8 @@ const Sidebar = () => {
   const clearJWT = () => {
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Expire immédiatement le cookie
   };
+
+  const navigate = useNavigate()
 
   // Mutation pour déconnexion
   const { mutate: logoutMutation } = useMutation({

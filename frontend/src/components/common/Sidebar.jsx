@@ -14,31 +14,35 @@ const Sidebar = () => {
   const queryClient = useQueryClient();
 
   const clearJWT = () => {
-    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Expire immédiatement le cookie
   };
 
+  // Mutation pour déconnexion
   const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
         // Supprimer le token du localStorage
         localStorage.removeItem('jwt');
+        
+        // Supprimer le cookie JWT
+        clearJWT();
       } catch (error) {
         console.error('Logout error:', error);
         throw new Error(error.message);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['authUser']);
-      window.location.href = '/'; 
+      queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
+      navigate('/'); // Rediriger vers la page de login après déconnexion
     },
     onError: () => {
-      toast.error('Logout failed');
+      toast.error('Logout failed'); // Afficher un toast en cas d'erreur
     },
   });
 
+  // Fonction pour gérer la déconnexion
   const logout = async () => {
-    await logoutMutation();  // Exécute la mutation de déconnexion
-    navigate('/login'); // Redirige vers la page de login après la déconnexion
+    await logoutMutation();  // Exécuter la mutation de déconnexion
   };
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });

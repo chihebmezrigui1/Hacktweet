@@ -31,7 +31,7 @@ function App() {
 			
 			// Vérifier d'abord le statut de la réponse
 			if (res.status === 401) {
-			  console.log("Non authentifié (401)");
+			  console.log("Non authentifié (401) **");
 			  return null;
 			}
 			

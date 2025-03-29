@@ -285,11 +285,13 @@ export const commentOnPost = async (req, res) => {
 
 export const likeUnlikePost = async (req, res) => {
     try {
-        console.log("User in likeUnlikePost:", req.user); // Vérifier si req.user existe
-        
+        console.log("🔵 [DEBUG] User in likeUnlikePost:", req.user);
+
         if (!req.user) {
-            return res.status(401).json({ error: "Unauthorized - No user found in request" });
+            console.error("❌ Unauthorized: No user found in request");
+            return res.status(401).json({ error: "Unauthorized - No user found" });
         }
+
 
         const userId = req.user._id;
         const { id: postId } = req.params;

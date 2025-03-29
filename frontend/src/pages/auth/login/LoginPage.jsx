@@ -25,18 +25,19 @@ const LoginPage = () => {
 		isError,
 		error,
 	} = useMutation({
-		mutationFn: async ({ username, password,credentials }) => {
+		mutationFn: async ({ username, password }) => {
 			try {
 				const res = await fetch(`${API_URL}/api/auth/login`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ username, password,credentials }),
+					body: JSON.stringify({ username, password }),
+					credentials: 'include'
+
 				});
 
 				const data = await res.json();
-				localStorage.setItem('jwt', data.token);
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}

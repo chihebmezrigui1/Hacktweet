@@ -57,9 +57,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({ error: "Invalid username or password" });
         }
 
-		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-		res.status(200).json({ token }); // Renvoie simplement le token dans la réponse
+        generateTokenAndSetCookie(user._id, res);
 
         res.status(200).json({
             _id: user._id,
@@ -77,23 +75,21 @@ export const signup = async (req, res) => {
     }
 };
 
-
-
 export const logout = async (req, res) => {
 	try {
-		res.cookie("jwt", "", { 
-			expires: new Date(0),
-			maxAge: 0, 
-			httpOnly: true,  // Assure-toi que ce cookie ne peut pas être accessible depuis le JavaScript côté client
-			secure: process.env.NODE_ENV === 'production', // `secure: true` uniquement en production
-			sameSite: 'Strict' // ou 'Lax' selon les besoins
-		  });
-		res.status(200).json({ message: "Logged out successfully" });
+	  res.cookie("jwt", "", {
+		maxAge: 0, // Expire immédiatement
+		httpOnly: true,
+		secure: process.env.NODE_ENV === 'production', // Assurez-vous que le cookie est envoyé uniquement via HTTPS en production
+		sameSite: 'None',
+		path: '/',
+	  });
+	  res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
-		console.log("Error in logout controller", error.message);
-		res.status(500).json({ error: "Internal Server Error" });
+	  console.log("Error in logout controller", error.message);
+	  res.status(500).json({ error: "Internal Server Error" });
 	}
-};
+  };
 export const getMe = async (req, res) => {
 	try {
 		const user = await User.findById(req.user._id).select("-password");

@@ -1,7 +1,14 @@
-tf-keras
-numpy==1.23.5
-flask==2.0.1
-flask_cors==3.0.10
-tensorflow>=2.12.0
-deepface==0.0.75
-
+flask==2.3.2
+flask-cors==4.0.0
+werkzeug==2.3.6
+opencv-python==4.7.0.72
+numpy==1.23.5  # Modifier cette ligne pour être compatible avec tensorflow
+Pillow==9.5.0
+deepface==0.0.79
+requests==2.31.0
+matplotlib==3.7.1
+tensorflow==2.12.0
+keras==2.12.0
+typing-extensions==4.6.3
+pytest==7.3.1
+virtualenv==20.23.0

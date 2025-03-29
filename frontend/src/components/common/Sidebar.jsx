@@ -22,12 +22,11 @@ const Sidebar = () => {
       try {
         const res = await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
-          credentials: 'include', // Inclure le cookie JWT
+          credentials: 'include', // Inclure les cookies
         });
         const data = await res.json();
+        console.log(data); // Afficher la réponse pour vérifier que le message est reçu
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
-        // Supprimer le cookie localement si nécessaire
-        document.cookie = "jwt=; Max-Age=0; path=/";
       } catch (error) {
         throw new Error(error);
       }

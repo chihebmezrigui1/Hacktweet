@@ -37,7 +37,6 @@ const LoginPage = () => {
 				});
 
 				const data = await res.json();
-				navigate('/bookmarks')
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}

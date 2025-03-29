@@ -136,14 +136,29 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
 // Configure CORS with credentials support
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-  ? ['https://hacktweet.vercel.app', 'https://hacktweet-2l11-5qw03e378-chihebmezrigui1s-projects.vercel.app']
-  : 'http://localhost:3000', // Your frontend URL
-  credentials: true,               // Allow credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://hacktweet-2l11-5qw03e378-chihebmezrigui1s-projects.vercel.app',
+    'https://hacktweet.vercel.app'
+  ];
+  
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
 // API routes
 app.use("/api/auth", authRoutes);

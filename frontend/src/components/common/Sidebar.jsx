@@ -22,7 +22,7 @@ const Sidebar = () => {
       try {
         const res = await fetch(`${API_URL}/api/auth/logout`, { method: 'POST',credentials: 'include' });
         const data = await res.json();
-        clearJWT();
+
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
       } catch (error) {
         throw new Error(error);
@@ -30,6 +30,8 @@ const Sidebar = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['authUser'] });
+      clearJWT();
+      window.location.href = '/';
     },
     onError: () => {
       toast.error('Logout failed');

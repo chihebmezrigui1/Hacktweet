@@ -13,7 +13,6 @@ import { Camera, Smile } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 import { API_URL } from "../../API";
-import axios from "axios";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
@@ -239,7 +238,7 @@ const captureEmotion = async () => {
 	const { mutate: likePost, isPending: isLiking } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await axios.get(`/api/posts/like/${post._id}`, {
+				const res = await fetch(`/api/posts/like/${post._id}`, {
 					method: "POST",
 					credentials: 'include'
 				});

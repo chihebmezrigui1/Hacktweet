@@ -358,7 +358,7 @@ const captureEmotion = async () => {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({ text: comment }),
-					credentials : true
+					credentials: "include"
 				});
 				const data = await res.json();
 

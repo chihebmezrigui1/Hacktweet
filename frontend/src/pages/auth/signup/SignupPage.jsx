@@ -9,7 +9,7 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { API_URL } from "@/frontend/src/API";
+import { API_URL } from "../../../API"
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({

@@ -21,25 +21,38 @@ const Sidebar = () => {
   const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
+        console.log("Début de la déconnexion");
+
         // Supprimer le token du localStorage
         localStorage.removeItem('jwt');
-        
+        console.log("Token supprimé de localStorage");
+
         // Supprimer le cookie JWT
-        clearJWT();
+        document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; 
+        console.log("Cookie supprimé");
+
+        // Appel API pour déconnexion côté serveur
+        await fetch(`${API_URL}/api/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+        console.log("Déconnexion côté serveur effectuée");
+
       } catch (error) {
         console.error('Logout error:', error);
         throw new Error(error.message);
       }
     },
     onSuccess: () => {
+      console.log("Déconnexion réussie");
       queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
-      navigate('/'); // Rediriger vers la page de login après déconnexion
+      navigate('/login'); // Rediriger vers la page de login après déconnexion
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Erreur de déconnexion :", error);
       toast.error('Logout failed'); // Afficher un toast en cas d'erreur
     },
   });
-
   // Fonction pour gérer la déconnexion
   const logout = async () => {
     await logoutMutation();  // Exécuter la mutation de déconnexion

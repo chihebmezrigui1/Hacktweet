@@ -35,7 +35,7 @@ const Sidebar = () => {
       // Invalide le cache de la requête d'utilisateur pour forcer la mise à jour
       queryClient.invalidateQueries(['authUser']);
       // Rediriger vers la page de connexion après la déconnexion
-      window.location.href = '/login'; // Tu peux aussi utiliser `useNavigate()`
+      window.location.href = '/'; // Tu peux aussi utiliser `useNavigate()`
     },
     onError: () => {
       toast.error('Logout failed');

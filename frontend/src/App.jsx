@@ -21,42 +21,21 @@ function App() {
 	const { data: authUser, isLoading } = useQuery({
 		queryKey: ["authUser"],
 		queryFn: async () => {
-		  try {
-			const res = await fetch(`${API_URL}/api/auth/me`, {
-			  credentials: 'include',  // Crucial pour envoyer les cookies d'authentification
-			  headers: {
-				'Content-Type': 'application/json'
-			  }
-			});
-			
-			// Vérifier d'abord le statut de la réponse
-			if (res.status === 401) {
-			  console.log("Non authentifié (401)");
-			  return null;
+			try {
+				const res = await fetch(`${API_URL}/api/auth/me`);
+				const data = await res.json();
+				if (data.error) return null;
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+				console.log("authUser is here:", data);
+				return data;
+			} catch (error) {
+				throw new Error(error);
 			}
-			
-			if (!res.ok) {
-			  console.error("Erreur API:", res.status);
-			  return null;
-			}
-			
-			// Seulement essayer de parser la réponse si le statut est OK
-			const data = await res.json();
-			
-			if (data.error) {
-			  console.error("Erreur retournée par l'API:", data.error);
-			  return null;
-			}
-			
-			console.log("Utilisateur authentifié:", data);
-			return data;
-		  } catch (error) {
-			console.error("Erreur réseau ou JSON:", error);
-			return null;  // Retourner null plutôt que de lancer une erreur
-		  }
 		},
 		retry: false,
-	  });
+	});
 
 	if (isLoading) {
 		return (

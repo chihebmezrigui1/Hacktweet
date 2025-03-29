@@ -12,6 +12,7 @@ import { Camera, Smile } from "lucide-react";
 
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
+import { API_URL } from "../../API";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
@@ -162,7 +163,7 @@ const captureEmotion = async () => {
       
       try {
         // Send to backend
-        const response = await fetch('/api/detection/detect-emotion', {
+        const response = await fetch(`${API_URL}/api/detection/detect-emotion`, {
           method: 'POST',
           body: formData,
           credentials: 'include'
@@ -214,7 +215,7 @@ const captureEmotion = async () => {
 	const { mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/${post._id}`, {
+				const res = await fetch(`${API_URL}/api/posts/${post._id}`, {
 					method: "DELETE",
 				});
 				const data = await res.json();
@@ -273,7 +274,7 @@ const captureEmotion = async () => {
 	const { mutate: bookmarkPost, isPending: isBookmarking } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/bookmark/${post._id}`, {
+				const res = await fetch(`${API_URL}/api/posts/bookmark/${post._id}`, {
 					method: "POST",
 				});
 				const data = await res.json();
@@ -309,7 +310,7 @@ const captureEmotion = async () => {
 	const { mutate: repostPost, isPending: isReposting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/repost/${post._id}`, {
+				const res = await fetch(`${API_URL}/api/posts/repost/${post._id}`, {
 					method: "POST",
 				});
 				const data = await res.json();
@@ -347,7 +348,7 @@ const captureEmotion = async () => {
 	const { mutate: commentPost, isPending: isCommenting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/comment/${post._id}`, {
+				const res = await fetch(`${API_URL}/api/posts/comment/${post._id}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

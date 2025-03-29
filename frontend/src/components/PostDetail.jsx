@@ -26,7 +26,7 @@ const PostDetail = () => {
     queryKey: ["post", id],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/posts/${id}`);
+        const res = await fetch(`${API_URL}/api/posts/${id}`);
         const data = await res.json();
         
         if (!res.ok) {
@@ -43,7 +43,7 @@ const PostDetail = () => {
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/${id}`, {
+        const res = await fetch(`${API_URL}/api/posts/${id}`, {
           method: "DELETE",
         });
         const data = await res.json();
@@ -69,7 +69,7 @@ const PostDetail = () => {
   const { mutate: likePost, isPending: isLiking } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/like/${id}`, {
+        const res = await fetch(`${API_URL}/api/posts/like/${id}`, {
           method: "POST",
         });
         const data = await res.json();
@@ -95,7 +95,7 @@ const PostDetail = () => {
   const { mutate: commentPost, isPending: isCommenting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/comment/${id}`, {
+        const res = await fetch(`${API_URL}/api/posts/comment/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -8,13 +8,14 @@ import { BiLogOut } from 'react-icons/bi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import logo from '../svgs/logo.webp';
+import { API_URL } from '../../API';
 
 const Sidebar = () => {
   const queryClient = useQueryClient();
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch('/api/auth/logout', { method: 'POST' });
+        const res = await fetch(`${API_URL}/api/auth/logout`, { method: 'POST' });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
       } catch (error) {
@@ -36,7 +37,7 @@ const Sidebar = () => {
     queryKey: ['unreadCount'],
     queryFn: async () => {
       try {
-        const res = await fetch('/api/notifications/unread-count', {
+        const res = await fetch(`${API_URL}/api/notifications/unread-count`, {
           credentials: 'include'
         });
         if (!res.ok) {

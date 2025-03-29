@@ -15,13 +15,14 @@ import BookmarksPage from "./pages/Posts/BookmarksPage";
 
 // Importez le SocketProvider
 import { SocketProvider } from "./context/SocketContext";
+import { API_URL } from "./API";
 
 function App() {
 	const { data: authUser, isLoading } = useQuery({
 		queryKey: ["authUser"],
 		queryFn: async () => {
 			try {
-				const res = await fetch("/api/auth/me");
+				const res = await fetch(`${API_URL}/api/auth/me`);
 				const data = await res.json();
 				if (data.error) return null;
 				if (!res.ok) {

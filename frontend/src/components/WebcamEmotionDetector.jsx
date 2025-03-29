@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, AlertTriangle } from 'lucide-react';
+import { API_URL } from '../API';
 
 const WebcamEmotionDetector = ({ postId }) => {
   const videoRef = useRef(null);
@@ -74,7 +75,7 @@ const WebcamEmotionDetector = ({ postId }) => {
         formData.append('postId', postId);  // Ajouter l'ID du post
 
         try {
-          const response = await fetch('http://localhost:5000/api/posts/detect-emotion', {
+          const response = await fetch(`${API_URL}/api/posts/detect-emotion`, {
             method: 'POST',
             body: formData,
             credentials: 'include'

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Post from "./Post";
 import PostSkeleton from "../skeleton/PostSkeleton";
+import { API_URL } from "../../API";
 
 const BookmarkedPosts = () => {
   const {
@@ -13,7 +14,7 @@ const BookmarkedPosts = () => {
     queryKey: ["bookmarkedPosts"],
     queryFn: async () => {
       try {
-        const res = await fetch("/api/posts/bookmarks");
+        const res = await fetch(`${API_URL}/api/posts/bookmarks`);
         const data = await res.json();
 
         if (!res.ok) {

@@ -20,7 +20,7 @@
 
 Créez un fichier `.env` dans le dossier backend et ajoutez les variables suivantes :
 ```env
-MONGO_URI=mongodb+srv://ipssi:ipssi_hackathon_2025@cluster0.cdawf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+MONGO_URI=mongodb+srv://hacktweet:TzDnih4ggxsmFsEr@cluster0.cdawf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=ipssi_hackathon_2025
 CLOUDINARY_CLOUD_NAME=dpu3cztng
 CLOUDINARY_API_KEY=643196434225345
@@ -29,6 +29,7 @@ CLOUDINARY_API_SECRET=2Oq-UzAuZMTMQ3LGjwww5Z3nxuQ
 
 Le fichier `.env` est essentiel pour stocker des informations sensibles comme les URI de base de données et les secrets JWT. Assurez-vous de ne pas partager ce fichier publiquement, surtout avec des informations sensibles telles que les identifiants MongoDB.
 
+DB password  : 4VcvTx4x6gVtZkB8
 
 # Emotion Detection API
 

@@ -1,0 +1,30 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Installer les dépendances système en une seule commande
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copier uniquement les fichiers nécessaires
+COPY DetectEmotion.py ./
+
+# Créer le dossier uploads
+RUN mkdir -p /app/uploads
+
+# Installer les dépendances Python avec des versions spécifiques 
+# qui sont connues pour être compatibles
+RUN pip install --no-cache-dir numpy==1.23.5
+RUN pip install --no-cache-dir werkzeug==2.0.3
+RUN pip install --no-cache-dir flask==2.0.1
+RUN pip install --no-cache-dir flask_cors==3.0.10
+RUN pip install --no-cache-dir tensorflow==2.10.0
+RUN pip install --no-cache-dir deepface==0.0.75
+
+# Exposer le port utilisé par l'application Flask
+EXPOSE 5001
+
+# Commande pour démarrer l'application Flask
+CMD ["python", "DetectEmotion.py"]

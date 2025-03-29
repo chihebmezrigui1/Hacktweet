@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  # Backend Node.js/Express
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.node
+    container_name: backend
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - backend-uploads:/app/uploads
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb+srv://hacktweet:TzDnih4ggxsmFsEr@hacktweet.w5o2i.mongodb.net/?retryWrites=true&w=majority&appName=HackTweet
+      - JWT_SECRET=ipssi_hackathon_2025
+      - CLOUDINARY_CLOUD_NAME=dpu3cztng
+      - CLOUDINARY_API_KEY=643196434225345
+      - CLOUDINARY_API_SECRET=2Oq-UzAuZMTMQ3LGjwww5Z3nxuQ
+      - EMOTION_API_URL=http://emotion-api:5001
+    networks:
+      - app-network
+    depends_on:
+      - emotion-api
+
+  # Service de détection d'émotions (Flask/Python)
+  emotion-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.python
+    container_name: emotion-api
+    restart: always
+    ports:
+      - "5002:5001"  # Changé pour éviter le conflit avec le port 5001
+    volumes:
+      - backend-uploads:/app/uploads
+    networks:
+      - app-network
+
+  # Frontend React/Vite
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - emotion-api
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  backend-uploads:  # Volume Docker nommé pour partager les uploads entre les services
+
+

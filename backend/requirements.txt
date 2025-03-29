@@ -1,4 +1,6 @@
-deepface
-flask
-flask_cors
 tf-keras
+numpy==1.23.5
+flask==2.0.1
+flask_cors==3.0.10
+tensorflow==2.10.0
+deepface==0.0.75

@@ -1,0 +1,30 @@
+FROM node:18-alpine
+
+# Installer les dépendances système nécessaires pour les compilations natives
+RUN apk add --no-cache python3 build-base
+
+WORKDIR /app
+
+# Copier les fichiers de dépendances
+COPY package*.json ./
+
+# Installer les dépendances Node.js avec des options spécifiques
+RUN npm install --legacy-peer-deps --verbose
+
+# Copier le reste des fichiers du projet (sauf les fichiers Python)
+COPY server.js ./
+COPY config ./config
+COPY controllers ./controllers
+COPY lib ./lib
+COPY middleware ./middleware
+COPY models ./models
+COPY routes ./routes
+
+# Créer le dossier uploads s'il n'existe pas
+RUN mkdir -p /app/uploads/emotions
+
+# Exposer le port utilisé par l'application
+EXPOSE 5000
+
+# Commande pour démarrer l'application
+CMD ["node", "server.js"]

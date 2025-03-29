@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import XSvg from "../../../components/svgs/X";
 import logo from '../../../components/svgs/logo.webp'
@@ -17,6 +17,7 @@ const LoginPage = () => {
 		password: "",
 	});
 	const queryClient = useQueryClient();
+	const navigate = useNavigate()
 
 	const {
 		mutate: loginMutation,
@@ -32,10 +33,11 @@ const LoginPage = () => {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({ username, password }),
+
 				});
 
 				const data = await res.json();
-
+				navigate('/bookmarks')
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}

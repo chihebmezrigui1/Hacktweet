@@ -20,22 +20,16 @@ const Sidebar = () => {
   const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/auth/logout`, {
-          method: 'POST',
-          credentials: 'include',
-        });
-        const data = await res.json();
-        console.log(data); // Vérifie que la déconnexion a bien eu lieu
-        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+        // Supprimer le token du localStorage
+        localStorage.removeItem('jwt');
       } catch (error) {
-        throw new Error(error);
+        console.error('Logout error:', error);
+        throw new Error(error.message);
       }
     },
     onSuccess: () => {
-      // Invalide le cache de la requête d'utilisateur pour forcer la mise à jour
       queryClient.invalidateQueries(['authUser']);
-      // Rediriger vers la page de connexion après la déconnexion
-      window.location.href = '/'; // Tu peux aussi utiliser `useNavigate()`
+      window.location.href = '/'; 
     },
     onError: () => {
       toast.error('Logout failed');

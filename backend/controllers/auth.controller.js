@@ -57,7 +57,9 @@ export const signup = async (req, res) => {
             return res.status(400).json({ error: "Invalid username or password" });
         }
 
-        generateTokenAndSetCookie(user._id, res);
+		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+		res.status(200).json({ token }); // Renvoie simplement le token dans la réponse
 
         res.status(200).json({
             _id: user._id,

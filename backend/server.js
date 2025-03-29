@@ -95,7 +95,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? 'https://hacktweet.vercel.app' 
+      ? ['https://hacktweet.vercel.app', 'https://hacktweet-8rri5mxcw-chihebmezrigui1s-projects.vercel.app']
       : 'http://localhost:3000',
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
@@ -138,7 +138,7 @@ app.use(cookieParser());
 // Configure CORS with credentials support
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-  ? 'https://hacktweet.vercel.app' 
+  ? ['https://hacktweet.vercel.app', 'https://hacktweet-8rri5mxcw-chihebmezrigui1s-projects.vercel.app']
   : 'http://localhost:3000', // Your frontend URL
   credentials: true,               // Allow credentials
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

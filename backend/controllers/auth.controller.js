@@ -82,7 +82,7 @@ export const logout = async (req, res) => {
 			maxAge: 0, // Expire immédiatement
 			httpOnly: true, // Empêche l'accès au cookie depuis JavaScript côté client
 			secure: process.env.NODE_ENV === 'production', // Assurez-vous que le cookie est envoyé uniquement via HTTPS en production
-			sameSite: 'Strict', // Pour éviter que le cookie soit envoyé avec des requêtes cross-site
+			sameSite: 'LAx', // Pour éviter que le cookie soit envoyé avec des requêtes cross-site
 			path: '/', // Définir le chemin du cookie, en général '/'
 		});
 		res.status(200).json({ message: "Logged out successfully" });

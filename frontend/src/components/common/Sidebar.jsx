@@ -20,12 +20,14 @@ const Sidebar = () => {
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/auth/logout`, { method: 'POST',credentials: 'include' });
+        const res = await fetch(`${API_URL}/api/auth/logout`, {
+          method: 'POST',
+          credentials: 'include', // Inclure le cookie JWT
+        });
         const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || "Something went wrong");
-        // Supprimer le cookie JWT localement après la déconnexion
-        document.cookie = "jwt=; Max-Age=0; path=/"; // Supprimer le cookie manuellement ici
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+        // Supprimer le cookie localement si nécessaire
+        document.cookie = "jwt=; Max-Age=0; path=/";
       } catch (error) {
         throw new Error(error);
       }

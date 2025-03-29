@@ -81,7 +81,7 @@ export const logout = async (req, res) => {
 		maxAge: 0, // Expire immédiatement
 		httpOnly: true,
 		secure: process.env.NODE_ENV === 'production', // Assurez-vous que le cookie est envoyé uniquement via HTTPS en production
-		sameSite: 'Strict',
+		sameSite: 'None',
 		path: '/',
 	  });
 	  res.status(200).json({ message: "Logged out successfully" });

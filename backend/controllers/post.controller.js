@@ -285,6 +285,12 @@ export const commentOnPost = async (req, res) => {
 
 export const likeUnlikePost = async (req, res) => {
     try {
+        console.log("User in likeUnlikePost:", req.user); // Vérifier si req.user existe
+        
+        if (!req.user) {
+            return res.status(401).json({ error: "Unauthorized - No user found in request" });
+        }
+
         const userId = req.user._id;
         const { id: postId } = req.params;
 
@@ -297,19 +303,16 @@ export const likeUnlikePost = async (req, res) => {
         const userLikedPost = post.likes.includes(userId);
 
         if (userLikedPost) {
-            // Unlike post
             await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
             await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
 
             const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
             res.status(200).json(updatedLikes);
         } else {
-            // Like post
             post.likes.push(userId);
             await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
             await post.save();
 
-            // Vérifier si l'utilisateur n'est pas le propriétaire du post avant de créer une notification
             if (userId.toString() !== post.user.toString()) {
                 const notification = new Notification({
                     from: userId,
@@ -319,22 +322,16 @@ export const likeUnlikePost = async (req, res) => {
                 });
                 await notification.save();
                 
-                // Populate notification for real-time delivery
                 const populatedNotification = await Notification.findById(notification._id)
-                    .populate({
-                        path: "from",
-                        select: "username profileImg"
-                    });
-                
-                // Send real-time notification
+                    .populate({ path: "from", select: "username profileImg" });
+
                 const recipientSocketId = userSockets[post.user.toString()];
                 if (recipientSocketId) {
                     io.to(recipientSocketId).emit('new-notification', populatedNotification);
                 }
             }
 
-            const updatedLikes = post.likes;
-            res.status(200).json(updatedLikes);
+            res.status(200).json(post.likes);
         }
     } catch (error) {
         console.log("Error in likeUnlikePost controller: ", error);

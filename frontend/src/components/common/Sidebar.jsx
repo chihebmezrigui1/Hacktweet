@@ -15,10 +15,7 @@ const Sidebar = () => {
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/auth/logout`, {
-          method: 'POST',
-          credentials: 'include',
-        });
+        const res = await fetch(`${API_URL}/api/auth/logout`, { method: 'POST',credentials: 'include' });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
       } catch (error) {
@@ -26,11 +23,7 @@ const Sidebar = () => {
       }
     },
     onSuccess: () => {
-      // Invalider le cache 'authUser' pour s'assurer que l'utilisateur soit déconnecté
       queryClient.invalidateQueries({ queryKey: ['authUser'] });
-  
-      // Rediriger l'utilisateur vers la page de connexion ou la page d'accueil
-      window.location.href = "/login"; // ou "/"
     },
     onError: () => {
       toast.error('Logout failed');

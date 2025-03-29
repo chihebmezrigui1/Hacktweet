@@ -77,14 +77,20 @@ export const signup = async (req, res) => {
 
 export const logout = async (req, res) => {
 	try {
-		res.cookie("jwt", "", { maxAge: 0 });
+		// Vous pouvez définir ces options en fonction de la configuration de votre cookie
+		res.cookie("jwt", "", {
+			maxAge: 0, // Expire immédiatement
+			httpOnly: true, // Empêche l'accès au cookie depuis JavaScript côté client
+			secure: process.env.NODE_ENV === 'production', // Assurez-vous que le cookie est envoyé uniquement via HTTPS en production
+			sameSite: 'Strict', // Pour éviter que le cookie soit envoyé avec des requêtes cross-site
+			path: '/', // Définir le chemin du cookie, en général '/'
+		});
 		res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
 		console.log("Error in logout controller", error.message);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
-
 export const getMe = async (req, res) => {
 	try {
 		const user = await User.findById(req.user._id).select("-password");

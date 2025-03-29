@@ -10,6 +10,7 @@ const useFollow = () => {
 			try {
 				const res = await fetch(`${API_URL}/api/users/follow/${userId}`, {
 					method: "POST",
+					credentials : "include"
 				});
 
 				const data = await res.json();

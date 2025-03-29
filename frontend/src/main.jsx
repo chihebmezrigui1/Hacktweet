@@ -15,10 +15,10 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")).render(
 	<React.StrictMode>
-		<BrowserRouter>
+		<HashRouter>
 			<QueryClientProvider client={queryClient}>
 				<App />
 			</QueryClientProvider>
-		</BrowserRouter>
+		</HashRouter>
 	</React.StrictMode>
 );

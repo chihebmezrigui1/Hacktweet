@@ -12,11 +12,17 @@ import { API_URL } from '../../API';
 
 const Sidebar = () => {
   const queryClient = useQueryClient();
+
+  const clearJWT = () => {
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+  };
+
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
       try {
         const res = await fetch(`${API_URL}/api/auth/logout`, { method: 'POST',credentials: 'include' });
         const data = await res.json();
+        clearJWT();
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
       } catch (error) {
         throw new Error(error);

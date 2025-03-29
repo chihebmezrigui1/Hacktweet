@@ -23,15 +23,15 @@ const Sidebar = () => {
         const res = await fetch(`${API_URL}/api/auth/logout`, { method: 'POST',credentials: 'include' });
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+        // Supprimer le cookie JWT localement après la déconnexion
+        document.cookie = "jwt=; Max-Age=0; path=/"; // Supprimer le cookie manuellement ici
       } catch (error) {
         throw new Error(error);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['authUser'] });
-      clearJWT();
-      window.location.href = '/';
     },
     onError: () => {
       toast.error('Logout failed');

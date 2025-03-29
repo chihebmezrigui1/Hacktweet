@@ -238,7 +238,7 @@ const captureEmotion = async () => {
 	const { mutate: likePost, isPending: isLiking } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/like/${post._id}`, {
+				const res = await fetch(`${API_URL}/api/posts/like/${post._id}`, {
 					method: "POST",
 					credentials: 'include'
 				});

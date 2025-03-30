@@ -75,26 +75,58 @@ export const signup = async (req, res) => {
     }
 };
 
+// export const logout = async (req, res) => {
+// 	try {
+// 	  res.clearCookie("jwt", {  // Changé de "token" à "jwt"
+// 		httpOnly: true,
+// 		secure: process.env.NODE_ENV === 'production', // Adaptatif selon l'environnement
+// 		sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+// 		path: "/",
+// 	  });
+// 	  res.status(200).json({ message: "Logged out successfully" });
+// 	} catch (error) {
+// 	  console.log("Error in logout controller", error.message);
+// 	  res.status(500).json({ error: "Internal Server Error" });
+// 	}
+//   };
+
+
 export const logout = async (req, res) => {
 	try {
-	  res.clearCookie("jwt", {  // Changé de "token" à "jwt"
+	  const token = req.cookies.jwt;
+	  
+	  if (token) {
+		// Ajouter le token à la blacklist
+		await BlacklistedToken.create({ token });
+		console.log("Token ajouté à la blacklist");
+	  }
+	  
+	  // Supprimer le cookie comme avant
+	  res.clearCookie("jwt", {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production', // Adaptatif selon l'environnement
-		sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
-		path: "/",
+		secure: true,
+		sameSite: "none",
+		path: "/"
 	  });
+	  
 	  res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
 	  console.log("Error in logout controller", error.message);
 	  res.status(500).json({ error: "Internal Server Error" });
 	}
   };
+
 export const getMe = async (req, res) => {
 	try {
+		// Vérification explicite que le token existe dans la requête
+		if (!req.cookies.jwt) {
+		  return res.status(401).json({ error: "Not authenticated" });
+		}
+		
 		const user = await User.findById(req.user._id).select("-password");
 		res.status(200).json(user);
-	} catch (error) {
+	  } catch (error) {
 		console.log("Error in getMe controller", error.message);
 		res.status(500).json({ error: "Internal Server Error" });
-	}
+	  }
 };

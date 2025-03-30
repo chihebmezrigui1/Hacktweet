@@ -18,42 +18,106 @@ const Sidebar = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Expire immédiatement le cookie
   };
 
-  // Mutation pour déconnexion
-const { mutate: logoutMutation } = useMutation({
+  const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
-        console.log("Début de la déconnexion");
 
+        if (token) {
+          try {
+            await BlacklistedToken.create({ token });
+            console.log("Token ajouté à la blacklist");
+          } catch (blacklistError) {
+            console.error("Erreur lors de l'ajout à la blacklist, mais continuons la déconnexion", blacklistError);
+          }
+        }
+
+        console.log("Début de la déconnexion");
+        
+        // Marquer la déconnexion dans localStorage pour que App.js puisse la détecter
+        localStorage.setItem('logoutRequested', 'true');
+  
         // Supprimer le token du localStorage
         localStorage.removeItem('token');
         console.log("Token supprimé de localStorage");
-
+  
         // Supprimer le cookie JWT
-        document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; 
+        document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; sameSite=none";
         console.log("Cookie supprimé");
-
+  
         // Appel API pour déconnexion côté serveur
-        await fetch(`${API_URL}/api/auth/logout`, {
+        const response = await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
           credentials: 'include',
         });
+        
+        if (!response.ok) {
+          throw new Error(`Échec de la déconnexion côté serveur: ${response.status}`);
+        }
+        
         console.log("Déconnexion côté serveur effectuée");
-
+        return await response.json();
       } catch (error) {
         console.error('Logout error:', error);
-        throw new Error(error.message);
+        throw error;
       }
     },
     onSuccess: () => {
       console.log("Déconnexion réussie");
-      queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
-      navigate('/login'); // Rediriger vers la page de login après déconnexion
+      
+      // Invalider les requêtes
+      queryClient.removeQueries(['authUser']);
+      queryClient.removeQueries(['unreadCount']);
+      
+      // Forcer une redirection complète (pas juste navigate)
+      window.location.href = '/login';
     },
     onError: (error) => {
       console.error("Erreur de déconnexion :", error);
-      toast.error('Logout failed'); // Afficher un toast en cas d'erreur
+      toast.error('Problème de déconnexion. Nous vous redirigeons quand même.');
+      
+      // Même en cas d'erreur, rediriger vers login
+      queryClient.removeQueries(['authUser']);
+      window.location.href = '/login';
     },
   });
+
+  // Mutation pour déconnexion
+// const { mutate: logoutMutation } = useMutation({
+//     mutationFn: async () => {
+//       try {
+//         console.log("Début de la déconnexion");
+
+//         // Supprimer le token du localStorage
+//         localStorage.removeItem('token');
+//         console.log("Token supprimé de localStorage");
+
+//         // Supprimer le cookie JWT
+//         document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; 
+//         console.log("Cookie supprimé");
+
+//         // Appel API pour déconnexion côté serveur
+//         await fetch(`${API_URL}/api/auth/logout`, {
+//           method: 'POST',
+//           credentials: 'include',
+//         });
+//         console.log("Déconnexion côté serveur effectuée");
+
+//       } catch (error) {
+//         console.error('Logout error:', error);
+//         throw new Error(error.message);
+//       }
+//     },
+//     onSuccess: () => {
+//       console.log("Déconnexion réussie");
+//       queryClient.removeQueries(['authUser']); // Supprime spécifiquement la requête d'authentification
+//       queryClient.invalidateQueries();
+//       navigate('/login'); // Rediriger vers la page de login après déconnexion
+//     },
+//     onError: (error) => {
+//       console.error("Erreur de déconnexion :", error);
+//       toast.error('Logout failed'); // Afficher un toast en cas d'erreur
+//     },
+//   });
   // Fonction pour gérer la déconnexion
   const logout = async () => {
     await logoutMutation();  // Exécuter la mutation de déconnexion

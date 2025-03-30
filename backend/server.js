@@ -90,7 +90,6 @@ const PORT = process.env.PORT || 5000;
 
 const __dirname = path.resolve();
 
-const path = require('path');
 
 const buildPath = path.join(__dirname, '../frontend/dist'); // ou le chemin correct vers votre build React
 

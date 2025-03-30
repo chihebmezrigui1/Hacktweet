@@ -77,13 +77,12 @@ export const signup = async (req, res) => {
 
 export const logout = async (req, res) => {
 	try {
-	  res.cookie("jwt", "", {
-		maxAge: 0, // Expire immédiatement
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production', // Assurez-vous que le cookie est envoyé uniquement via HTTPS en production
-		sameSite: 'None',
-		path: '/',
-	  });
+		res.clearCookie("token", {
+			httpOnly: true,
+			secure: true, // IMPORTANT : 'true' en production (false en dev)
+			sameSite: "none", // Autorise le cross-origin
+			path: "/", // Assurez-vous que le cookie est supprimé sur tout le domaine
+		});
 	  res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
 	  console.log("Error in logout controller", error.message);

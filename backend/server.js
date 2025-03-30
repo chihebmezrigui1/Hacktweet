@@ -101,11 +101,11 @@ const io = new Server(server, {
       // Liste de domaines autorisés
       const allowedDomains = [
         'http://localhost:3000',
-        'https://hacktweet.vercel.app'
+        'https://hacktweet.onrender.com'
       ];
       
-      // Autorise également tous les sous-domaines de vercel.app contenant 'hacktweet'
-      if (origin.includes('hacktweet') && origin.includes('vercel.app')) {
+      // Autorise également tous les sous-domaines de onrender.com contenant 'hacktweet'
+      if (origin.includes('hacktweet') && origin.includes('onrender.com')) {
         return callback(null, true);
       }
       
@@ -163,11 +163,11 @@ app.use(cors({
     // Liste de domaines autorisés
     const allowedDomains = [
       'http://localhost:3000',
-      'https://hacktweet.vercel.app'
+      'https://hacktweet.onrender.com'
     ];
     
-    // Autorise également tous les sous-domaines de vercel.app contenant 'hacktweet'
-    if (origin.includes('hacktweet') && origin.includes('vercel.app')) {
+    // Autorise également tous les sous-domaines de onrender.com contenant 'hacktweet'
+    if (origin.includes('hacktweet') && origin.includes('onrender.com')) {
       return callback(null, true);
     }
     

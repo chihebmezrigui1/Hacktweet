@@ -69,7 +69,7 @@ const Sidebar = () => {
       queryClient.removeQueries(['unreadCount']);
       
       // Forcer une redirection complète (pas juste navigate)
-      window.location.href = '/';
+      // window.location.href = '/';
     },
     onError: (error) => {
       console.error("Erreur de déconnexion :", error);
@@ -77,7 +77,7 @@ const Sidebar = () => {
       
       // Même en cas d'erreur, rediriger vers login
       queryClient.removeQueries(['authUser']);
-      window.location.href = '/';
+      // window.location.href = '/';
     },
   });
 

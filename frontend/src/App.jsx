@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query"; // Ajoutez useQueryClient ici
+import { useQuery } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 
 import HomePage from "./pages/home/HomePage";
@@ -18,93 +18,56 @@ import { SocketProvider } from "./context/SocketContext";
 import { API_URL } from "./API";
 import { useEffect } from "react";
 
-import { setupApiInterceptor } from './utils/apiInterceptor';
-// ...
-const queryClient = new QueryClient();
-setupApiInterceptor(queryClient);
-
 function App() {
-	const queryClient = useQueryClient(); // Assurez-vous d'ajouter ceci
-	
-	// Ajouter un effet pour nettoyer les cookies si le token est invalide
-	useEffect(() => {
-	  // Vérifier si une déconnexion a été demandée via localStorage
-	  const logoutRequested = localStorage.getItem('logoutRequested');
-	  if (logoutRequested === 'true') {
-		// Nettoyer les données
-		document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; sameSite=none";
-		localStorage.removeItem('logoutRequested');
-		queryClient.removeQueries(['authUser']);
-	  }
-	}, [queryClient]);
-	
-	const { data: authUser, isLoading, error } = useQuery({
-	  queryKey: ["authUser"],
-	  queryFn: async () => {
-		try {
-		  const res = await fetch(`${API_URL}/api/auth/me`, {
-			credentials: 'include',
-			headers: {
-			  'Content-Type': 'application/json'
+	const { data: authUser, isLoading } = useQuery({
+		queryKey: ["authUser"],
+		queryFn: async () => {
+		  try {
+			const res = await fetch(`${API_URL}/api/auth/me`, {
+			  credentials: 'include',  // Crucial pour envoyer les cookies d'authentification
+			  headers: {
+				'Content-Type': 'application/json'
+			  }
+			});
+			
+			// Vérifier d'abord le statut de la réponse
+			if (res.status === 401) {
+			  console.log("Non authentifié (401) **");
+			  return null;
 			}
-		  });
-		  
-		  // Vérifier d'abord le statut de la réponse
-		  if (res.status === 401) {
-			console.log("Non authentifié (401) - Session expirée ou token révoqué");
 			
-			// Nettoyer les cookies et le stockage local
-			document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; sameSite=none";
-			localStorage.removeItem('token');
+			if (!res.ok) {
+			  console.error("Erreur API:", res.status);
+			  return null;
+			}
 			
-			// Invalider les requêtes en cache
-			queryClient.removeQueries(['authUser']);
+			// Seulement essayer de parser la réponse si le statut est OK
+			const data = await res.json();
 			
-			return null;
+			if (data.error) {
+			  console.error("Erreur retournée par l'API:", data.error);
+			  return null;
+			}
+			
+			console.log("Utilisateur authentifié:", data);
+			return data;
+		  } catch (error) {
+			console.error("Erreur réseau ou JSON:", error);
+			return null;  // Retourner null plutôt que de lancer une erreur
 		  }
-		  
-		  // Le reste de votre code reste inchangé
-		  if (!res.ok) {
-			console.error("Erreur API:", res.status);
-			return null;
-		  }
-		  
-		  const data = await res.json();
-		  
-		  if (data.error) {
-			console.error("Erreur retournée par l'API:", data.error);
-			return null;
-		  }
-		  
-		  console.log("Utilisateur authentifié:", data);
-		  return data;
-		} catch (error) {
-		  console.error("Erreur réseau ou JSON:", error);
-		  return null;
-		}
-	  },
-	  // Ajouter un rafraîchissement périodique pour vérifier la validité de la session
-	  refetchInterval: 5 * 60 * 1000, // Toutes les 5 minutes
-	  retry: false,
-	});
-  
-	// Gérer les erreurs d'authentification
-	useEffect(() => {
-	  if (error) {
-		console.error("Erreur de vérification d'authentification:", error);
-		// Nettoyer les données en cas d'erreur
-		document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; sameSite=none";
-	  }
-	}, [error]);
-  
+		},
+		retry: false,
+	  });
+
+
 	if (isLoading) {
-	  return (
-		<div className='h-screen flex justify-center items-center'>
-		  <LoadingSpinner size='lg' />
-		</div>
-	  );
+		return (
+			<div className='h-screen flex justify-center items-center'>
+				<LoadingSpinner size='lg' />
+			</div>
+		);
 	}
-  
+
 	return (
 		// Enveloppez votre application dans le SocketProvider
 		<SocketProvider>
@@ -135,9 +98,6 @@ function App() {
 			</div>
 		</SocketProvider>
 	);
-  }
-
-	
-
+}
 
 export default App;

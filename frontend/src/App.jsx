@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query"; // Ajoutez useQueryClient ici
 import { Toaster } from "react-hot-toast";
 
 import HomePage from "./pages/home/HomePage";

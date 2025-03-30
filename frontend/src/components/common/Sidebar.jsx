@@ -53,7 +53,8 @@ const { mutate: logoutMutation } = useMutation({
     onSuccess: () => {
       console.log("Déconnexion réussie");
       queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
-      navigate('/login'); // Rediriger vers la page de login après déconnexion
+      window.location.href = "/login";
+      window.location.reload();  // Rediriger vers la page de login après déconnexion
     },
     onError: (error) => {
       console.error("Erreur de déconnexion :", error);

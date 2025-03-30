@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MdHomeFilled } from 'react-icons/md';
 import { IoNotifications } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
@@ -17,10 +17,8 @@ const Sidebar = () => {
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Expire immédiatement le cookie
   };
 
-  const navigate = useNavigate()
-
   // Mutation pour déconnexion
-  const { mutate: logoutMutation } = useMutation({
+const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
         console.log("Début de la déconnexion");
@@ -48,7 +46,7 @@ const Sidebar = () => {
     onSuccess: () => {
       console.log("Déconnexion réussie");
       queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
-      queryClient.clear();
+      navigate('/login'); // Rediriger vers la page de login après déconnexion
     },
     onError: (error) => {
       console.error("Erreur de déconnexion :", error);
@@ -57,7 +55,7 @@ const Sidebar = () => {
   });
   // Fonction pour gérer la déconnexion
   const logout = async () => {
-    await logoutMutation();
+    await logoutMutation();  // Exécuter la mutation de déconnexion
   };
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });

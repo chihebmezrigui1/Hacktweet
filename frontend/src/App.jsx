@@ -16,6 +16,7 @@ import BookmarksPage from "./pages/Posts/BookmarksPage";
 // Importez le SocketProvider
 import { SocketProvider } from "./context/SocketContext";
 import { API_URL } from "./API";
+import { useEffect } from "react";
 
 function App() {
 	const { data: authUser, isLoading } = useQuery({

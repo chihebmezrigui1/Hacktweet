@@ -76,6 +76,8 @@ import detectionRoutes from './routes/detection.route.js';
 
 dotenv.config();
 
+
+
 // Cloudinary configuration
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -87,6 +89,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const __dirname = path.resolve();
+
+const path = require('path');
+
+const buildPath = path.join(__dirname, '../frontend/dist'); // ou le chemin correct vers votre build React
+
+// Servir les fichiers statiques
+app.use(express.static(buildPath));
+
+// Pour toutes les autres routes, renvoyer index.html de React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
+});
 
 // Créer un serveur HTTP à partir de l'app Express
 const server = http.createServer(app);

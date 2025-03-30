@@ -60,6 +60,7 @@
 
 
 import path from "path";
+import fs from "fs"
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -91,7 +92,13 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 
-const fs = require('fs');
+
+
+
+
+
+
+// this one **********
 
 // Afficher le répertoire courant et son contenu
 console.log('Current directory:', process.cwd());
@@ -106,6 +113,10 @@ foldersToCheck.forEach(folder => {
     console.log(`Folder ${folder} not found or not accessible`);
   }
 });
+// this one **********
+
+
+
 
 // Créer un serveur HTTP à partir de l'app Express
 const server = http.createServer(app);

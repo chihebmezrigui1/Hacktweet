@@ -91,18 +91,20 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 
-// Obtenez le chemin absolu de votre application sur Render
-const buildPath = path.join(process.cwd(), 'frontend/dist');
-console.log('Build path:', buildPath);
+const fs = require('fs');
 
-// Servir les fichiers statiques
-app.use(express.static(buildPath));
+// Afficher le répertoire courant et son contenu
+console.log('Current directory:', process.cwd());
+console.log('Directory content:', fs.readdirSync(process.cwd()));
 
-// Pour toutes les autres routes, renvoyer index.html de React
-app.get('*', (req, res) => {
-  const indexPath = path.join(buildPath, 'index.html');
-  console.log('Index path:', indexPath);
-  res.sendFile(indexPath);
+// Vérifier si certains dossiers communs existent
+const foldersToCheck = ['frontend', 'dist', 'public', 'build'];
+foldersToCheck.forEach(folder => {
+  try {
+    console.log(`Content of ${folder}:`, fs.readdirSync(path.join(process.cwd(), folder)));
+  } catch (error) {
+    console.log(`Folder ${folder} not found or not accessible`);
+  }
 });
 
 // Créer un serveur HTTP à partir de l'app Express

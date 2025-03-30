@@ -91,8 +91,9 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 
-const buildPath = path.resolve(__dirname, '../frontend/dist');
-console.log('Build path:', buildPath); // Pour déboguer
+// Obtenez le chemin absolu de votre application sur Render
+const buildPath = path.join(process.cwd(), 'frontend/dist');
+console.log('Build path:', buildPath);
 
 // Servir les fichiers statiques
 app.use(express.static(buildPath));
@@ -100,7 +101,7 @@ app.use(express.static(buildPath));
 // Pour toutes les autres routes, renvoyer index.html de React
 app.get('*', (req, res) => {
   const indexPath = path.join(buildPath, 'index.html');
-  console.log('Index path:', indexPath); // Pour déboguer
+  console.log('Index path:', indexPath);
   res.sendFile(indexPath);
 });
 

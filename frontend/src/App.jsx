@@ -59,13 +59,6 @@ function App() {
 		retry: false,
 	  });
 
-	  const navigate = useNavigate()
-	  useEffect(() => {
-		const isAuthenticated = !!localStorage.getItem('jwt');
-		if (!isAuthenticated) {
-		  navigate('/login');
-		}
-	  }, []);
 
 	if (isLoading) {
 		return (

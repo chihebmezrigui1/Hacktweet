@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import logo from '../svgs/logo.webp';
 import { API_URL } from '../../API';
+import { setLoggedOut } from '../../utils/authState';
 
 const Sidebar = () => {
   const queryClient = useQueryClient();
@@ -22,6 +23,11 @@ const Sidebar = () => {
 const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
+
+      
+        // Définir le drapeau de déconnexion
+        setLoggedOut(true);
+
         console.log("Début de la déconnexion");
 
         // Supprimer le token du localStorage

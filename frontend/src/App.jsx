@@ -17,11 +17,16 @@ import BookmarksPage from "./pages/Posts/BookmarksPage";
 import { SocketProvider } from "./context/SocketContext";
 import { API_URL } from "./API";
 import { useEffect } from "react";
+import { isLoggedOut } from "./utils/authState";
 
 function App() {
 	const { data: authUser, isLoading } = useQuery({
 		queryKey: ["authUser"],
 		queryFn: async () => {
+
+		  if (isLoggedOut) {
+				return null;
+			}
 		  try {
 			const res = await fetch(`${API_URL}/api/auth/me`, {
 			  credentials: 'include',  // Crucial pour envoyer les cookies d'authentification

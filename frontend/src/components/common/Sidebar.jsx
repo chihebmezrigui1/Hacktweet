@@ -15,7 +15,7 @@ const Sidebar = () => {
   const navigate = useNavigate()
 
   const clearJWT = () => {
-    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Expire immédiatement le cookie
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Expire immédiatement le cookie
   };
 
   // Mutation pour déconnexion
@@ -25,7 +25,7 @@ const { mutate: logoutMutation } = useMutation({
         console.log("Début de la déconnexion");
 
         // Supprimer le token du localStorage
-        localStorage.removeItem('jwt');
+        localStorage.removeItem('token');
         console.log("Token supprimé de localStorage");
 
         // Supprimer le cookie JWT

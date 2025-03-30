@@ -77,12 +77,19 @@ export const signup = async (req, res) => {
 
 export const logout = async (req, res) => {
 	try {
-		res.clearCookie("token", {
-			httpOnly: true,
-			secure: true, // IMPORTANT : 'true' en production (false en dev)
-			sameSite: "none", // Autorise le cross-origin
-			path: "/", // Assurez-vous que le cookie est supprimé sur tout le domaine
-		});
+	  console.log("Request hostname:", req.hostname);
+	  console.log("Request origin:", req.get('origin'));
+	  console.log("All cookies:", req.cookies);
+	  
+	  // Supprimer le cookie avec des paramètres plus spécifiques
+	  res.clearCookie("jwt", {
+		httpOnly: true,
+		secure: true, 
+		sameSite: "none",
+		path: "/",
+		domain: req.hostname.includes('localhost') ? 'localhost' : undefined
+	  });
+	  
 	  res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
 	  console.log("Error in logout controller", error.message);
@@ -90,7 +97,7 @@ export const logout = async (req, res) => {
 	}
   };
 
-  
+
 export const getMe = async (req, res) => {
 	try {
 		const user = await User.findById(req.user._id).select("-password");

@@ -19,45 +19,30 @@ const Sidebar = () => {
   };
 
   // Mutation pour déconnexion
-const { mutate: logoutMutation } = useMutation({
-    mutationFn: async () => {
-      try {
-        console.log("Début de la déconnexion");
 
-        // Supprimer le token du localStorage
-        localStorage.removeItem('jwt');
-        console.log("Token supprimé de localStorage");
-
-        // Supprimer le cookie JWT
-        document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; 
-        console.log("Cookie supprimé");
-
-        // Appel API pour déconnexion côté serveur
-        await fetch(`${API_URL}/api/auth/logout`, {
-          method: 'POST',
-          credentials: 'include',
-        });
-        console.log("Déconnexion côté serveur effectuée");
-
-      } catch (error) {
-        console.error('Logout error:', error);
-        throw new Error(error.message);
-      }
-    },
-    onSuccess: () => {
-      console.log("Déconnexion réussie");
-      queryClient.invalidateQueries(['authUser']); // Invalider les données d'authentification
-      navigate('/login'); // Rediriger vers la page de login après déconnexion
-    },
-    onError: (error) => {
-      console.error("Erreur de déconnexion :", error);
-      toast.error('Logout failed'); // Afficher un toast en cas d'erreur
-    },
-  });
-  // Fonction pour gérer la déconnexion
   const logout = async () => {
-    await logoutMutation();  // Exécuter la mutation de déconnexion
+    try {
+      // Supprimer le token local
+      localStorage.removeItem('jwt');  // ou sessionStorage.removeItem('jwt');
+  
+      // Effectuer la déconnexion côté serveur (en appelant l'API de déconnexion)
+      const response = await fetch('https://hacktweet-backend-apis-node.onrender.com/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',  // Assurez-vous que le cookie est envoyé avec la requête
+      });
+  
+      // Vérifiez la réponse et redirigez après déconnexion réussie
+      if (response.ok) {
+        window.location.href = '/login';  // Redirige vers la page de login
+      } else {
+        console.error("Erreur lors de la déconnexion");
+      }
+    } catch (error) {
+      console.error("Erreur de déconnexion:", error);
+    }
   };
+
+
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });
   

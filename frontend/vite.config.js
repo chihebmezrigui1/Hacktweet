@@ -25,6 +25,7 @@ export default defineConfig({
     }
   },
   server: {
+    historyApiFallback: true,
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:5000',

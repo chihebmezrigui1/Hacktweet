@@ -91,14 +91,17 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 
-const buildPath = path.join(__dirname, '../frontend/dist'); // ou le chemin correct vers votre build React
+const buildPath = path.resolve(__dirname, '../frontend/dist');
+console.log('Build path:', buildPath); // Pour déboguer
 
 // Servir les fichiers statiques
 app.use(express.static(buildPath));
 
 // Pour toutes les autres routes, renvoyer index.html de React
 app.get('*', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html'));
+  const indexPath = path.join(buildPath, 'index.html');
+  console.log('Index path:', indexPath); // Pour déboguer
+  res.sendFile(indexPath);
 });
 
 // Créer un serveur HTTP à partir de l'app Express

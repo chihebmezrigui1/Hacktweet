@@ -33,7 +33,7 @@ const Sidebar = () => {
   
       // Vérifiez la réponse et redirigez après déconnexion réussie
       if (response.ok) {
-        window.location.href = '/login';  // Redirige vers la page de login
+        window.location.href = '/';  // Redirige vers la page de login
       } else {
         console.error("Erreur lors de la déconnexion");
       }

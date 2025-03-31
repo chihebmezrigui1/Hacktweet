@@ -8,6 +8,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { formatPostDate } from "../utils/date";
+import { API_URL } from "../API";
 
 const PostDetail = () => {
   const { id } = useParams();

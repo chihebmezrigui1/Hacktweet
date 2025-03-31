@@ -91,9 +91,14 @@ const LoginPage = () => {
 							value={formData.password}
 						/>
 					</label>
-					<button className='btn rounded-full btn-primary text-white' style={{ backgroundColor: '#3bb0d3',borderColor:'#3bb0d3' }}>
-						{isPending ? "Loading..." : "Login"}
-					</button>
+					<button 
+    className='btn rounded-full btn-primary text-white'
+    style={{ backgroundColor: '#3bb0d3', borderColor:'#3bb0d3' }}
+    onClick={handleSubmit}
+    onTouchStart={handleSubmit}
+>
+    {isPending ? "Loading..." : "Login"}
+</button>
 					{isError && <p className='text-red-500'>{error.message}</p>}
 				</form>
 				<div className='flex flex-col gap-2 mt-4'>

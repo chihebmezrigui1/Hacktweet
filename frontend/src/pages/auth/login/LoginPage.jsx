@@ -77,6 +77,7 @@ const LoginPage = () => {
 							name='username'
 							onChange={handleInputChange}
 							value={formData.username}
+							autoComplete="off"
 						/>
 					</label>
 
@@ -89,6 +90,7 @@ const LoginPage = () => {
 							name='password'
 							onChange={handleInputChange}
 							value={formData.password}
+							autoComplete="off"
 						/>
 					</label>
 					<button 

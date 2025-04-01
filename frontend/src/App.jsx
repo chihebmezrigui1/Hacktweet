@@ -18,6 +18,7 @@ import { SocketProvider } from "./context/SocketContext";
 import { API_URL } from "./API";
 import { useEffect } from "react";
 import { isLoggedOut } from "./utils/authState";
+import { fetchWithAuth } from "./fetchWithAuth";
 
 function App() {
 	const { data: authUser, isLoading } = useQuery({

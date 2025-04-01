@@ -102,105 +102,105 @@ const startWebcam = async () => {
   };
   
 
-// Modifiez votre fonction captureEmotion pour gérer le spinner
-const captureEmotion = async () => {
+  const captureEmotion = async () => {
 	try {
-	  // Réinitialiser le débogage et activer le spinner
 	  setDebugInfo("1. Début de la capture d'émotion...");
-	  setIsDetectingEmotion(true);
-	  
-	  // Vérifications préalables
+
 	  if (!videoRef.current || !canvasRef.current) {
-		throw new Error("Webcam ou canvas non disponible");
+		setDebugInfo(prev => prev + "\n❌ Erreur: Webcam ou canvas non disponible");
+		toast.error("Webcam ou canvas non disponible");
+		return;
 	  }
-	  
+
 	  const video = videoRef.current;
-	  const canvas = canvasRef.current;
-	  const context = canvas.getContext('2d');
-	  
-	  // S'assurer que la vidéo est prête
+	  let canvas = canvasRef.current;
+	  let context = canvas.getContext('2d');
+
+	  setDebugInfo(prev => prev + `\n2. État vidéo: ${video.readyState}`);
+
 	  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-		throw new Error("La vidéo n'est pas prête");
+		setDebugInfo(prev => prev + "\n⏳ Vidéo pas encore prête, attente...");
+		await new Promise(resolve => setTimeout(resolve, 1000));
+
+		if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+		  setDebugInfo(prev => prev + "\n❌ Erreur: La vidéo n'est toujours pas prête");
+		  toast.error("La vidéo n'est pas prête, veuillez réessayer");
+		  return;
+		}
 	  }
-	  
-	  // Dimensionner le canvas
+
+	  // Capture de l'image
 	  canvas.width = video.videoWidth || 640;
 	  canvas.height = video.videoHeight || 480;
-	  
-	  // Capturer l'image
 	  context.clearRect(0, 0, canvas.width, canvas.height);
 	  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-	  
+
+	  setDebugInfo(prev => prev + "\n4. Capture sur canvas réussie");
+
 	  // Convertir en blob
 	  canvas.toBlob(async (blob) => {
-		if (!blob) {
-		  throw new Error("Échec de création du blob");
+		if (!blob || blob.size < 1000) {
+		  setDebugInfo(prev => prev + "\n❌ Erreur: Image invalide ou trop petite");
+		  toast.error("Erreur lors de la capture de l'image");
+		  return;
 		}
-		
-		// Arrêter la webcam
+
+		setDebugInfo(prev => prev + `\n5. Blob créé: ${blob.size} octets`);
 		stopWebcam();
-		
-		// Vérifier la taille du blob
-		if (blob.size < 1000) {
-		  throw new Error("Image capturée trop petite");
-		}
-		
-		// Préparer les données de formulaire
+
+		// Activation du spinner
+		setIsDetectingEmotion(true);
+
+		// Création du formData
 		const formData = new FormData();
 		formData.append('image', blob, 'captured_emotion.jpg');
 		formData.append('postId', post._id);
 		formData.append('timestamp', Date.now());
-		
+
+		setDebugInfo(prev => prev + "\n6. FormData créé, envoi au backend...");
+
 		try {
-		  // Utiliser fetchWithAuth pour la requête
 		  const response = await fetchWithAuth('/api/detection/detect-emotion', {
 			method: 'POST',
-			body: formData,
-			// Supprimer Content-Type pour que le navigateur le définisse automatiquement
-			headers: {
-			  // Supprimer l'en-tête Content-Type pour les FormData
-			  'Content-Type': undefined
-			}
+			body: formData
 		  });
-		  
-		  // Vérifier la réponse
+
+		  setDebugInfo(prev => prev + `\n8. Réponse reçue: statut ${response.status}`);
+
 		  if (!response.ok) {
 			const errorText = await response.text();
-			throw new Error(`Erreur serveur : ${response.status} - ${errorText}`);
+			setDebugInfo(prev => prev + `\n❌ Erreur serveur ${response.status}: ${errorText.substring(0, 100)}`);
+			throw new Error(`Erreur ${response.status}: ${errorText}`);
 		  }
-		  
-		  // Traiter la réponse
+
+		  // Traitement de la réponse
 		  const data = await response.json();
-		  
+		  setDebugInfo(prev => prev + `\n9. Réponse JSON reçue: ${JSON.stringify(data).substring(0, 100)}...`);
+
 		  if (data.success) {
 			setDetectedEmotion(data.emotion_fr);
+			setDebugInfo(prev => prev + `\n✅ Succès! Émotion détectée: ${data.emotion_fr}`);
 			toast.success(`Émotion détectée : ${data.emotion_fr}`);
-			
-			// Option : mettre à jour le post avec l'émotion détectée
-			queryClient.setQueryData(["posts"], (oldData) => {
-			  return oldData?.map((p) => {
-				if (p._id === post._id) {
-				  return { ...p, detectedEmotion: data.emotion_fr };
-				}
-				return p;
-			  });
-			});
 		  } else {
-			throw new Error(data.message || "La détection d'émotion a échoué");
+			setDebugInfo(prev => prev + `\n❌ Échec de détection: ${data.message || "raison inconnue"}`);
+			toast.error("Détection impossible");
 		  }
+
 		} catch (error) {
-		  console.error("Erreur de détection d'émotion :", error);
-		  toast.error(error.message || "Échec de la détection d'émotion");
+		  setDebugInfo(prev => prev + `\n❌ Exception: ${error.message}`);
+		  toast.error("Erreur lors de la détection d'émotion");
+
+		} finally {
+		  setIsDetectingEmotion(false); // Désactiver le spinner après traitement
 		}
-	  }, 'image/jpeg', 0.7); // Compression de l'image
+	  }, 'image/jpeg', 0.7);
+
 	} catch (error) {
-	  console.error("Erreur lors de la capture d'émotion :", error);
-	  toast.error(error.message || "Erreur lors de la capture d'émotion");
-	} finally {
-	  // Toujours désactiver le spinner
+	  setDebugInfo(prev => prev + `\n❌ Erreur générale: ${error.message}`);
+	  toast.error("Erreur lors de la capture");
 	  setIsDetectingEmotion(false);
 	}
-  };
+};
   
   // Stop webcam function
   const stopWebcam = () => {

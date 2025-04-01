@@ -164,7 +164,7 @@ const captureEmotion = async () => {
       
       try {
         // Send to backend
-        const response = await fetch(`${API_URL}/api/detection/detect-emotion`, {
+        const response = await fetchWithAuth(`/api/detection/detect-emotion`, {
           method: 'POST',
           body: formData,
           credentials: 'include'

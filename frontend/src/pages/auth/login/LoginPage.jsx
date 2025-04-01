@@ -54,7 +54,7 @@ const LoginPage = () => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		loginMutation(formData);
-		console.log("Form submitted!",formData);
+		console.log("Form submitted!", formData);
 	};
 
 	const handleInputChange = (e) => {
@@ -64,7 +64,7 @@ const LoginPage = () => {
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen'>
 			<div className='flex-1 hidden lg:flex items-center  justify-center'>
-                <img src={logo} width={300}/>
+				<img src={logo} width={300} />
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='flex gap-4 flex-col' onSubmit={handleSubmit}>
@@ -94,21 +94,21 @@ const LoginPage = () => {
 							autoComplete="off"
 						/>
 					</label>
-					<button 
-    className='btn rounded-full btn-primary text-white'
-    style={{ backgroundColor: '#3bb0d3', borderColor:'#3bb0d3' }}
-    onClick={handleSubmit}
-    onTouchStart={handleSubmit}
->
-    {isPending ? "Loading..." : "Login"}
-</button>
+					<button
+						className='btn rounded-full btn-primary text-white'
+						style={{ backgroundColor: '#3bb0d3', borderColor: '#3bb0d3' }}
+						onClick={handleSubmit}
+						onTouchStart={handleSubmit}
+					>
+						{isPending ? "Loading..." : "Login"}
+					</button>
 					{isError && <p className='text-red-500'>{error.message}</p>}
 				</form>
 				<div className='flex flex-col gap-2 mt-4'>
 					<p className='text-white text-lg'>{"Don't"} have an account?</p>
 					<Link to='/signup'>
-						<button     className='btn rounded-full btn-primary text-white btn-outline w-full hover:border-[#3bb0d3]'
-                            style={{ borderColor:'#3bb0d3' }} >Sign up</button>
+						<button className='btn rounded-full btn-primary text-white btn-outline w-full hover:border-[#3bb0d3]'
+							style={{ borderColor: '#3bb0d3' }} >Sign up</button>
 					</Link>
 				</div>
 			</div>

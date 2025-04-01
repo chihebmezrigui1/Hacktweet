@@ -7,7 +7,7 @@ import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchWithAuth } from "@/frontend/src/fetchWithAuth";
+import { fetchWithAuth } from "../../../fetchWithAuth";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 

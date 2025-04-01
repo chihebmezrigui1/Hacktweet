@@ -73,13 +73,21 @@ const LoginPage = () => {
 			// Approche alternative pour la redirection (fonctionne mieux sur mobile)
 			setTimeout(() => {
 				try {
-					// Redirection directe via window.location pour éviter les problèmes React Router sur mobile
-					window.location.href = "/";
-					setDebugInfo(prev => prev + "\n9. Redirection effectuée via window.location");
+				  setDebugInfo(prev => prev + "\n9. Tentative de redirection...");
+				  const currentLocation = window.location.href;
+				  setDebugInfo(prev => prev + `\nURL actuelle: ${currentLocation}`);
+				  
+				  window.location.href = window.location.origin + "/";
+				  
+				  // Vérifier après un court délai si la redirection a fonctionné
+				  setTimeout(() => {
+					const newLocation = window.location.href;
+					setDebugInfo(prev => prev + `\nNouvelle URL: ${newLocation}`);
+				  }, 200);
 				} catch (e) {
-					setDebugInfo(prev => prev + `\n! Erreur de redirection: ${e.message}`);
+				  setDebugInfo(prev => prev + `\n! Erreur détaillée: ${e.toString()}`);
 				}
-			}, 1000);
+			  }, 1000);
 		},
 		onError: (err) => {
 			setDebugInfo(prev => prev + `\n! Erreur finale: ${err.message}`);

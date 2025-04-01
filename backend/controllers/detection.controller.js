@@ -6,8 +6,10 @@ import fs from 'fs';
 import path from 'path';
 import Post from '../models/Post.js';
 
+// URL de l'API de détection d'émotions (mise à jour avec l'URL Render)
+const EMOTION_API_URL = process.env.EMOTION_API_URL || 'https://emotion-detection-api-zgj6.onrender.com';
+
 export const detectEmotion = async (req, res) => {
-    // Logs de débogage réduits pour améliorer les performances
     console.log('==================== DÉBUT DÉTECTION ÉMOTION ====================');
 
     try {
@@ -48,16 +50,17 @@ export const detectEmotion = async (req, res) => {
             contentType: file.mimetype
         });
 
-        console.log('Envoi à l\'API Flask...');
+        console.log('Envoi à l\'API Flask déployée sur Render...');
 
         try {
-            // Envoyer l'image au service de détection d'émotion avec timeout
-            const flaskResponse = await axios.post('http://127.0.0.1:5001/detect-emotion', formData, {
+            // Modifier l'URL pour utiliser le service déployé sur Render
+            const flaskResponse = await axios.post(`${EMOTION_API_URL}/detect-emotion`, formData, {
                 headers: {
                     ...formData.getHeaders(),
                 },
                 maxBodyLength: Infinity,
                 maxContentLength: Infinity,
+                timeout: 30000 // 30 secondes de timeout
             });
 
             // Nettoyer le fichier temporaire
@@ -71,7 +74,7 @@ export const detectEmotion = async (req, res) => {
             });
 
         } catch (flaskError) {
-            console.error('ERREUR lors de l\'envoi à l\'API Flask');
+            console.error('ERREUR lors de l\'envoi à l\'API Flask:', flaskError.message);
 
             // Nettoyer le fichier temporaire
             if (fs.existsSync(file.path)) {

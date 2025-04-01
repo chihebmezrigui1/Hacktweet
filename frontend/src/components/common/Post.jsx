@@ -34,6 +34,7 @@ const Post = ({ post }) => {
 	const videoRef = useRef(null);
 	const canvasRef = useRef(null);
 	const token = localStorage.getItem('jwtToken');
+	const [debugInfo, setDebugInfo] = useState("");
 
 
 // Start webcam function
@@ -209,6 +210,7 @@ const captureEmotion = async () => {
 		  // Essayer d'abord avec fetch standard
 		  setDebugInfo(prev => prev + `\n7. Envoi à ${API_URL}/api/detection/detect-emotion`);
 		  
+		  const token = localStorage.getItem('jwtToken');
 		  const response = await fetch(`${API_URL}/api/detection/detect-emotion`, {
 			method: 'POST',
 			body: formData,
@@ -321,7 +323,6 @@ const captureEmotion = async () => {
 	  setIsDetectingEmotion(false);
 	}
   };
-  
   // Stop webcam function
   const stopWebcam = () => {
 	if (videoRef.current && videoRef.current.srcObject) {
@@ -814,7 +815,20 @@ const captureEmotion = async () => {
 )} */}
 
 </div>
-
+{debugInfo && (
+  <div className="fixed bottom-0 left-0 right-0 p-3 bg-black text-white text-xs z-50 max-h-64 overflow-auto">
+    <div className="flex justify-between items-center mb-1">
+      <h3 className="font-bold">Débogage Détection Émotion</h3>
+      <button 
+        onClick={() => setDebugInfo("")}
+        className="text-xs px-2 py-1 bg-gray-700 rounded"
+      >
+        Effacer
+      </button>
+    </div>
+    <pre className="whitespace-pre-wrap">{debugInfo}</pre>
+  </div>
+)}
 			</div>
 		</>
 	);

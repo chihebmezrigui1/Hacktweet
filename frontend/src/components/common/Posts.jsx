@@ -3,6 +3,7 @@ import PostSkeleton from "../skeleton/PostSkeleton"
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { API_URL } from "../../API";
+import { fetchWithAuth } from "../../fetchWithAuth";
 
 const Posts = ({ feedType, username, userId, posts: directPosts }) => {
     // If direct posts are provided, we don't need to fetch
@@ -11,19 +12,19 @@ const Posts = ({ feedType, username, userId, posts: directPosts }) => {
     const getPostEndpoint = () => {
         switch (feedType) {
             case "forYou":
-                return `${API_URL}/api/posts/all`;
+                return `/api/posts/all`;
             case "following":
-                return `${API_URL}/api/posts/following`;
+                return `/api/posts/following`;
             case "posts":
-                return `${API_URL}/api/posts/user/${username}`;
+                return `/api/posts/user/${username}`;
             case "likes":
-                return `${API_URL}/api/posts/likes/${userId}`;
+                return `/api/posts/likes/${userId}`;
             case "bookmarks":
-                return `${API_URL}/api/posts/bookmarks`;
+                return `/api/posts/bookmarks`;
             case "reposts":
-                return `${API_URL}/api/posts/reposts/${userId}`;
+                return `/api/posts/reposts/${userId}`;
             default:
-                return `${API_URL}/api/posts/all`;
+                return `/api/posts/all`;
         }
     };
 
@@ -50,7 +51,7 @@ const Posts = ({ feedType, username, userId, posts: directPosts }) => {
         queryFn: async () => {
             try {
                 console.log(`Fetching from: ${POST_ENDPOINT}`);
-                const res = await fetch(POST_ENDPOINT, {
+                const res = await fetchWithAuth(POST_ENDPOINT, {
                     credentials: 'include' // Make sure to include credentials
                 });
                 

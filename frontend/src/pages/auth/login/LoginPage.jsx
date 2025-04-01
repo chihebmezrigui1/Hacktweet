@@ -8,7 +8,6 @@ import { MdPassword } from "react-icons/md";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const LoginPage = () => {
@@ -17,7 +16,7 @@ const LoginPage = () => {
 		password: "",
 	});
 	const queryClient = useQueryClient();
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 
 	const {
 		mutate: loginMutation,
@@ -26,33 +25,39 @@ const LoginPage = () => {
 		error,
 	} = useMutation({
 		mutationFn: async ({ username, password }) => {
-			try {
-				const res = await fetch(`${API_URL}/api/auth/login`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ username, password }),
-					credentials: 'include'
+			const res = await fetch(`${API_URL}/api/auth/login`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ username, password }),
+				credentials: 'include'
+			});
 
-				});
-
-				const data = await res.json();
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
-			} catch (error) {
-				throw new Error(error);
+			const data = await res.json();
+			if (!res.ok) {
+				throw new Error(data.error || "Something went wrong");
 			}
+			return data;
 		},
 		onSuccess: () => {
 			// refetch the authUser
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
+			// Rediriger l'utilisateur après une connexion réussie
+			navigate("/"); // ou vers la page que vous souhaitez
+            console.log("Login successful, redirecting...");
 		},
+        onError: (error) => {
+            console.error("Login error:", error);
+        }
 	});
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+        if (!formData.username || !formData.password) {
+            console.log("Username and password are required");
+            return;
+        }
 		loginMutation(formData);
 		console.log("Form submitted!", formData);
 	};
@@ -63,8 +68,8 @@ const LoginPage = () => {
 
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen'>
-			<div className='flex-1 hidden lg:flex items-center  justify-center'>
-				<img src={logo} width={300} />
+			<div className='flex-1 hidden lg:flex items-center justify-center'>
+				<img src={logo} width={300} alt="Logo" />
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='flex gap-4 flex-col' onSubmit={handleSubmit}>
@@ -95,10 +100,9 @@ const LoginPage = () => {
 						/>
 					</label>
 					<button
+						type="submit"
 						className='btn rounded-full btn-primary text-white'
 						style={{ backgroundColor: '#3bb0d3', borderColor: '#3bb0d3' }}
-						onClick={handleSubmit}
-						onTouchStart={handleSubmit}
 					>
 						{isPending ? "Loading..." : "Login"}
 					</button>

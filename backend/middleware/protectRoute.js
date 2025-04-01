@@ -28,15 +28,20 @@
 //     res.status(401).json({ error: "Unauthorized - Invalid Token" });
 //   }
 // };
-
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 export const protectRoute = async (req, res, next) => {
   try {
-    // Vérification de la présence du token dans les cookies
-    const token = req.cookies.jwt; 
-
+    // Essayer d'obtenir le token depuis les cookies d'abord
+    let token = req.cookies.jwt;
+    
+    // Si aucun token dans les cookies, vérifier les headers d'autorisation
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    
+    // Si toujours pas de token, renvoyer une erreur d'autorisation
     if (!token) {
       return res.status(401).json({ error: "Unauthorized - No Token Provided" });
     }

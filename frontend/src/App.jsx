@@ -28,7 +28,7 @@ function App() {
 				return null;
 			}
 		  try {
-			const res = await fetch(`${API_URL}/api/auth/me`, {
+			const res = await fetchWithAuth(`/api/auth/me`, {
 			  credentials: 'include',  // Crucial pour envoyer les cookies d'authentification
 			  headers: {
 				'Content-Type': 'application/json'

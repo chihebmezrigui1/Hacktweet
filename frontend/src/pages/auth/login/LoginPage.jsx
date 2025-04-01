@@ -65,11 +65,17 @@ const LoginPage = () => {
 		},
 		onSuccess: (data) => {
 			setDebugInfo(prev => prev + "\n7. Connexion réussie!");
+
+			if (data.token) {
+				localStorage.setItem('jwtToken', data.token);
+				setDebugInfo(prev => prev + "\n- Token stocké dans localStorage");
+			  }
 			// Invalidation des requêtes
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
 			
 			setDebugInfo(prev => prev + "\n8. Redirection dans 1 seconde...");
 			
+
 			// Approche alternative pour la redirection (fonctionne mieux sur mobile)
 			setTimeout(() => {
 				try {
@@ -77,7 +83,7 @@ const LoginPage = () => {
 				  const currentLocation = window.location.href;
 				  setDebugInfo(prev => prev + `\nURL actuelle: ${currentLocation}`);
 				  
-				  window.location.href = window.location.origin + "/";
+				//   window.location.href = window.location.origin + "/";
 				  
 				  // Vérifier après un court délai si la redirection a fonctionné
 				  setTimeout(() => {

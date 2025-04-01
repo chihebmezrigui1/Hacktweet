@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import logo from '../svgs/logo.webp';
 import { API_URL } from '../../API';
 import { setLoggedOut } from '../../utils/authState';
+import { fetchWithAuth } from '../../fetchWithAuth';
 
 const Sidebar = () => {
   const queryClient = useQueryClient();
@@ -23,15 +24,13 @@ const Sidebar = () => {
 const { mutate: logoutMutation } = useMutation({
     mutationFn: async () => {
       try {
-
-      
         // Définir le drapeau de déconnexion
         setLoggedOut(true);
 
         console.log("Début de la déconnexion");
 
         // Supprimer le token du localStorage
-        localStorage.removeItem('jwt');
+        localStorage.removeItem('jwtToken');
         console.log("Token supprimé de localStorage");
 
         // Supprimer le cookie JWT
@@ -39,7 +38,7 @@ const { mutate: logoutMutation } = useMutation({
         console.log("Cookie supprimé");
 
         // Appel API pour déconnexion côté serveur
-        await fetch(`${API_URL}/api/auth/logout`, {
+        await fetchWithAuth(`/api/auth/logout`, {
           method: 'POST',
           credentials: 'include',
         });
@@ -73,7 +72,7 @@ const { mutate: logoutMutation } = useMutation({
     queryKey: ['unreadCount'],
     queryFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/notifications/unread-count`, {
+        const res = await fetchWithAuth(`/api/notifications/unread-count`, {
           credentials: 'include'
         });
         if (!res.ok) {

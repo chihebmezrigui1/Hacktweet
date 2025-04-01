@@ -11,6 +11,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { API_URL } from "../../../API"
 import { fetchWithAuth } from "../../../fetchWithAuth";
+import { Link, useNavigate } from "react-router-dom";
+
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({
@@ -21,6 +23,7 @@ const SignUpPage = () => {
 	});
 
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
 	const { mutate, isError, isPending, error } = useMutation({
 		mutationFn: async ({ email, username, fullName, password }) => {
@@ -59,12 +62,21 @@ const SignUpPage = () => {
 		},
 		onSuccess: () => {
 			toast.success("Account created successfully");
-
-			{
-				/* Added this line below, after recording the video. I forgot to add this while recording, sorry, thx. */
-			}
+			
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
-		},
+			
+			// Redirection vers la page de connexion
+			// Détection des appareils mobiles
+			if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+			  // Redirection "forte" pour les appareils mobiles
+			  setTimeout(() => {
+				window.location.href = window.location.origin + "/login";
+			  }, 1500); // Délai pour que le toast soit visible
+			} else {
+			  // Utiliser navigate pour les navigateurs desktop
+			  navigate("/login");
+			}
+		  }
 	});
 
 	const handleSubmit = (e) => {

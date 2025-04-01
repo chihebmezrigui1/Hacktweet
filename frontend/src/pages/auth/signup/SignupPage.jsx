@@ -10,7 +10,7 @@ import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { API_URL } from "../../../API"
-import { fetchWithAuth } from "@/frontend/src/fetchWithAuth";
+import { fetchWithAuth } from "../../../fetchWithAuth";
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({

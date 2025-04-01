@@ -15,6 +15,9 @@ const LoginPage = () => {
 		username: "",
 		password: "",
 	});
+	// État pour le débogage
+	const [debugInfo, setDebugInfo] = useState("");
+	
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 
@@ -25,41 +28,74 @@ const LoginPage = () => {
 		error,
 	} = useMutation({
 		mutationFn: async ({ username, password }) => {
-			const res = await fetch(`${API_URL}/api/auth/login`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ username, password }),
-				credentials: 'include'
-			});
+			// Afficher les informations de débogage en temps réel
+			setDebugInfo("1. Début de la connexion...");
+			
+			try {
+				setDebugInfo(prev => prev + "\n2. Envoi de la requête à " + `${API_URL}/api/auth/login`);
+				
+				const res = await fetch(`${API_URL}/api/auth/login`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ username, password }),
+					credentials: 'include'
+				});
 
-			const data = await res.json();
-			if (!res.ok) {
-				throw new Error(data.error || "Something went wrong");
+				setDebugInfo(prev => prev + `\n3. Statut de la réponse: ${res.status}`);
+				
+				const data = await res.json();
+				setDebugInfo(prev => prev + `\n4. Données reçues: ${JSON.stringify(data).substring(0, 150)}...`);
+				
+				if (!res.ok) {
+					setDebugInfo(prev => prev + `\n5. Erreur détectée: ${data.error || "Unknown error"}`);
+					throw new Error(data.error || "Something went wrong");
+				}
+				
+				// Stocker les données utilisateur dans localStorage comme solution de secours
+				setDebugInfo(prev => prev + "\n6. Stockage des infos utilisateur dans localStorage");
+				localStorage.setItem('userInfo', JSON.stringify(data));
+				
+				return data;
+			} catch (error) {
+				setDebugInfo(prev => prev + `\n! Exception: ${error.message}`);
+				throw error;
 			}
-			return data;
 		},
-		onSuccess: () => {
-			// refetch the authUser
+		onSuccess: (data) => {
+			setDebugInfo(prev => prev + "\n7. Connexion réussie!");
+			// Invalidation des requêtes
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
-			// Rediriger l'utilisateur après une connexion réussie
-			navigate("/"); // ou vers la page que vous souhaitez
-            console.log("Login successful, redirecting...");
+			
+			setDebugInfo(prev => prev + "\n8. Redirection dans 1 seconde...");
+			
+			// Approche alternative pour la redirection (fonctionne mieux sur mobile)
+			setTimeout(() => {
+				try {
+					// Redirection directe via window.location pour éviter les problèmes React Router sur mobile
+					window.location.href = "/";
+					setDebugInfo(prev => prev + "\n9. Redirection effectuée via window.location");
+				} catch (e) {
+					setDebugInfo(prev => prev + `\n! Erreur de redirection: ${e.message}`);
+				}
+			}, 1000);
 		},
-        onError: (error) => {
-            console.error("Login error:", error);
-        }
+		onError: (err) => {
+			setDebugInfo(prev => prev + `\n! Erreur finale: ${err.message}`);
+		}
 	});
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-        if (!formData.username || !formData.password) {
-            console.log("Username and password are required");
-            return;
-        }
+		setDebugInfo(""); // Réinitialiser les infos de débogage
+		
+		if (!formData.username || !formData.password) {
+			setDebugInfo("Erreur: Nom d'utilisateur et mot de passe requis");
+			return;
+		}
+		
 		loginMutation(formData);
-		console.log("Form submitted!", formData);
 	};
 
 	const handleInputChange = (e) => {
@@ -100,7 +136,7 @@ const LoginPage = () => {
 						/>
 					</label>
 					<button
-						type="submit"
+						type="submit" 
 						className='btn rounded-full btn-primary text-white'
 						style={{ backgroundColor: '#3bb0d3', borderColor: '#3bb0d3' }}
 					>
@@ -115,8 +151,25 @@ const LoginPage = () => {
 							style={{ borderColor: '#3bb0d3' }} >Sign up</button>
 					</Link>
 				</div>
+				
+				{/* Zone de débogage */}
+				{debugInfo && (
+					<div className="fixed bottom-0 left-0 right-0 p-3 bg-black text-white text-xs z-50 max-h-64 overflow-auto">
+						<div className="flex justify-between items-center mb-1">
+							<h3 className="font-bold">Débogage Mobile</h3>
+							<button 
+								onClick={() => setDebugInfo("")}
+								className="text-xs px-2 py-1 bg-gray-700 rounded"
+							>
+								Effacer
+							</button>
+						</div>
+						<pre className="whitespace-pre-wrap">{debugInfo}</pre>
+					</div>
+				)}
 			</div>
 		</div>
 	);
 };
+
 export default LoginPage;

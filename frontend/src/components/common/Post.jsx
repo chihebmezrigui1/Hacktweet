@@ -33,6 +33,7 @@ const Post = ({ post }) => {
 	const [detectedEmotion, setDetectedEmotion] = useState(post.detectedEmotion || null);
 	const videoRef = useRef(null);
 	const canvasRef = useRef(null);
+	const token = localStorage.getItem('jwtToken');
 
 
 // Start webcam function
@@ -208,10 +209,13 @@ const captureEmotion = async () => {
 		  // Essayer d'abord avec fetch standard
 		  setDebugInfo(prev => prev + `\n7. Envoi à ${API_URL}/api/detection/detect-emotion`);
 		  
-		  const token = localStorage.getItem('jwtToken');
-		  const response = await fetchWithAuth(`/api/detection/detect-emotion`, {
+		  const response = await fetch(`${API_URL}/api/detection/detect-emotion`, {
 			method: 'POST',
 			body: formData,
+			headers: {
+			  'Authorization': token ? `Bearer ${token}` : ''
+			},
+			credentials: 'include',
 			signal: controller.signal
 		  });
 		  
@@ -332,7 +336,7 @@ const captureEmotion = async () => {
 	const { mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetchWithAuth(`/api/posts/${post._id}`, {
+				const res = await fetch(`${API_URL}/api/posts/${post._id}`, {
 					method: "DELETE",
 					credentials: 'include'
 				});
@@ -393,7 +397,7 @@ const captureEmotion = async () => {
 	const { mutate: bookmarkPost, isPending: isBookmarking } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/bookmark/${post._id}`, {
+				const res = await fetchWithAuth(`/api/posts/bookmark/${post._id}`, {
 					method: "POST",
 					credentials: 'include'
 				});
@@ -430,7 +434,7 @@ const captureEmotion = async () => {
 	const { mutate: repostPost, isPending: isReposting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/repost/${post._id}`, {
+				const res = await fetchWithAuth(`/api/posts/repost/${post._id}`, {
 					method: "POST",
 					credentials: 'include'
 				});
@@ -469,7 +473,7 @@ const captureEmotion = async () => {
 	const { mutate: commentPost, isPending: isCommenting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/comment/${post._id}`, {
+				const res = await fetchWithAuth(`/api/posts/comment/${post._id}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

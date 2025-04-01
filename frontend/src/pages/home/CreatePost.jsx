@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { API_URL } from "../../API";
+import { fetchWithAuth } from "../../fetchWithAuth";
 
 
 const emojis = [
@@ -32,7 +33,7 @@ const CreatePost = () => {
   } = useMutation({
     mutationFn: async ({ text, img }) => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/create`, {
+        const res = await fetchWithAuth(`/api/posts/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text, img }),

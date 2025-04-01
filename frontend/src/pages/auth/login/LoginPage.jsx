@@ -7,6 +7,7 @@ import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchWithAuth } from "@/frontend/src/fetchWithAuth";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -34,7 +35,7 @@ const LoginPage = () => {
 			try {
 				setDebugInfo(prev => prev + "\n2. Envoi de la requête à " + `${API_URL}/api/auth/login`);
 				
-				const res = await fetch(`${API_URL}/api/auth/login`, {
+				const res = await fetchWithAuth(`/api/auth/login`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

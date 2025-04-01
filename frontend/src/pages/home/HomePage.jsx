@@ -3,6 +3,7 @@ import Posts from "../../components/common/Posts";
 import CreatePost from "./CreatePost";
 import WebcamEmotionDetector from "../../components/WebcamEmotionDetector";
 import { API_URL } from "../../API";
+import { fetchWithAuth } from "../../fetchWithAuth";
 
 const HomePage = () => {
 	const [feedType, setFeedType] = useState("forYou");
@@ -41,8 +42,8 @@ const HomePage = () => {
 	
 			const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
 			
-			const url = `${API_URL}/api/posts/search${queryString}`;
-			const response = await fetch(url, {
+			const url = `/api/posts/search${queryString}`;
+			const response = await fetchWithAuth(url, {
 				credentials: 'include' // Include cookies
 			});
 	
@@ -81,8 +82,8 @@ const HomePage = () => {
 
 	const fetchHashtags = async () => {
 		try {
-			const response = await fetch(
-				`${API_URL}/api/posts/search/hashtags/popular`,{
+			const response = await fetchWithAuth(
+				`/api/posts/search/hashtags/popular`,{
 					credentials: 'include'
 				}
 			);
@@ -129,7 +130,7 @@ const HomePage = () => {
 			const token = localStorage.getItem('jwt');
 			
 			// Include the token in the request headers
-			const response = await fetch(`${API_URL}/api/posts/search-by-keyword?${queryString}`, {
+			const response = await fetchWithAuth(`/api/posts/search-by-keyword?${queryString}`, {
 				credentials: 'include' 
 			});
 			

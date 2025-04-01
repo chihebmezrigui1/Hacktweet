@@ -9,6 +9,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { formatPostDate } from "../utils/date";
 import { API_URL } from "../API";
+import { fetchWithAuth } from "../fetchWithAuth";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const PostDetail = () => {
     queryKey: ["post", id],
     queryFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/${id}`,{credentials: 'include'});
+        const res = await fetchWithAuth(`/api/posts/${id}`,{credentials: 'include'});
         const data = await res.json();
         
         if (!res.ok) {
@@ -44,7 +45,7 @@ const PostDetail = () => {
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/${id}`, {
+        const res = await fetchWithAuth(`/api/posts/${id}`, {
           method: "DELETE",
           credentials: 'include'
         });
@@ -71,7 +72,7 @@ const PostDetail = () => {
   const { mutate: likePost, isPending: isLiking } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/like/${id}`, {
+        const res = await fetchWithAuth(`/api/posts/like/${id}`, {
           method: "POST",
           credentials: 'include'
         });
@@ -98,7 +99,7 @@ const PostDetail = () => {
   const { mutate: commentPost, isPending: isCommenting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/comment/${id}`, {
+        const res = await fetchWithAuth(`/api/posts/comment/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

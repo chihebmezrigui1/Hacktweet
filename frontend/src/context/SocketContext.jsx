@@ -19,9 +19,18 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!authUser) return;
 
-    // Connexion à Socket.IO
+    const token = localStorage.getItem('jwtToken');
+
+    // Connexion à Socket.IO avec le token dans les options
     const socketInstance = io(`${API_URL}`, {
-      withCredentials: true
+      withCredentials: true,
+      auth: {
+        token: token // Ajouter le token JWT ici
+      },
+      // Ajouter extraHeaders pour les headers personnalisés
+      extraHeaders: {
+        Authorization: token ? `Bearer ${token}` : ''
+      }
     });
 
     socketInstance.on('connect', () => {

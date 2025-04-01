@@ -17,6 +17,7 @@ import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 import { API_URL } from "../../API";
+import { fetchWithAuth } from "../../fetchWithAuth";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -40,7 +41,7 @@ const ProfilePage = () => {
 		queryKey: ["userProfile"],
 		queryFn: async () => {
 			try {
-				const res = await fetch(`${API_URL}/api/users/profile/${username}`,{credentials: 'include'});
+				const res = await fetchWithAuth(`/api/users/profile/${username}`,{credentials: 'include'});
 				const data = await res.json();
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");

@@ -11,6 +11,7 @@ import { FaTrashAlt } from "react-icons/fa"; // Trash icon for delete
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../../API";
+import { fetchWithAuth } from "../../fetchWithAuth";
 
 const NotificationPage = () => {
   const queryClient = useQueryClient();
@@ -18,7 +19,7 @@ const NotificationPage = () => {
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/notifications`,{credentials: 'include'});
+        const res = await fetchWithAuth(`/api/notifications`,{credentials: 'include'});
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Something went wrong");
         return data;
@@ -32,7 +33,7 @@ const NotificationPage = () => {
   const { mutate: deleteNotification } = useMutation({
 	mutationFn: async (notificationId) => {
 	  try {
-		const res = await fetch(`${API_URL}/api/notifications/${notificationId}`, {
+		const res = await fetchWithAuth(`/api/notifications/${notificationId}`, {
 		  method: "DELETE",
       credentials: 'include'
 		});
@@ -91,7 +92,7 @@ const NotificationPage = () => {
 
   // Function to mark notification as read when clicked
   const markAsRead = (notificationId) => {
-    fetch(`${API_URL}/api/notifications/${notificationId}/read`, {
+    fetchWithAuth(`/api/notifications/${notificationId}/read`, {
       method: "PUT",
       credentials: 'include'
     })

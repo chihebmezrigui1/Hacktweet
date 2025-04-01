@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import Post from "./Post";
 import PostSkeleton from "../skeleton/PostSkeleton";
 import { API_URL } from "../../API";
+import { fetchWithAuth } from "../../fetchWithAuth";
 
 const BookmarkedPosts = () => {
   const {
@@ -14,7 +15,7 @@ const BookmarkedPosts = () => {
     queryKey: ["bookmarkedPosts"],
     queryFn: async () => {
       try {
-        const res = await fetch(`${API_URL}/api/posts/bookmarks`,{credentials: 'include'});
+        const res = await fetchWithAuth(`/api/posts/bookmarks`,{credentials: 'include'});
         const data = await res.json();
 
         if (!res.ok) {

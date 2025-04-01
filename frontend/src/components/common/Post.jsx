@@ -213,7 +213,7 @@ const startWebcam = async () => {
 			method: 'POST',
 			body: formData,
 			headers: {
-			  'Authorization': token ? `Bearer ${token}` : ''
+			  'Authorization': localStorage.getItem('jwtToken') ? `Bearer ${localStorage.getItem('jwtToken')}` : ''
 			},
 			credentials: 'include',
 			signal: controller.signal
@@ -283,7 +283,7 @@ const startWebcam = async () => {
 				
 				// Ajouter le token Authorization si disponible
 				if (token) {
-				  xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+				  xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`);
 				}
 				
 				xhr.withCredentials = true;

@@ -282,7 +282,7 @@ const startWebcam = async () => {
 				xhr.open('POST', `${API_URL}/api/detection/detect-emotion`, true);
 				
 				// Ajouter le token Authorization si disponible
-				if (token) {
+				if (localStorage.getItem('jwtToken')) {
 				  xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`);
 				}
 				

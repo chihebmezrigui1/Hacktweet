@@ -13,7 +13,7 @@ const RightPanel = () => {
 		queryKey: ["suggestedUsers"],
 		queryFn: async () => {
 			try {
-				const res = await fetchWithAuth(`/api/users/suggested`,{
+				const res = await fetchWithAuth(/api/users/suggested,{
 					credentials: 'include'
 				});
 				const data = await res.json();
@@ -27,7 +27,7 @@ const RightPanel = () => {
 		},
 	});
 
-	const { follow, loadingUser } = useFollow();
+	const { follow, isPending } = useFollow();
 
 	if (suggestedUsers?.length === 0) return <div className='md:w-64 w-0'></div>;
 
@@ -48,7 +48,7 @@ const RightPanel = () => {
 					{!isLoading &&
 						suggestedUsers?.map((user) => (
 							<Link
-								to={`/profile/${user.username}`}
+								to={/profile/${user.username}}
 								className='flex items-center justify-between gap-4'
 								key={user._id}
 							>
@@ -73,7 +73,7 @@ const RightPanel = () => {
 											follow(user._id);
 										}}
 									>
-										{loadingUser === user._id ? <LoadingSpinner size='sm' /> : "Follow"}
+										{isPending ? <LoadingSpinner size='sm' /> : "Follow"}
 									</button>
 								</div>
 							</Link>

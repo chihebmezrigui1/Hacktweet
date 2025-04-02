@@ -13,7 +13,7 @@ const RightPanel = () => {
 		queryKey: ["suggestedUsers"],
 		queryFn: async () => {
 			try {
-				const res = await fetchWithAuth('/api/users/suggested',{
+				const res = await fetchWithAuth(`/api/users/suggested`,{
 					credentials: 'include'
 				});
 				const data = await res.json();
@@ -48,7 +48,7 @@ const RightPanel = () => {
 					{!isLoading &&
 						suggestedUsers?.map((user) => (
 							<Link
-								to={/profile/${user.username}}
+								to={`/profile/${user.username}`}
 								className='flex items-center justify-between gap-4'
 								key={user._id}
 							>

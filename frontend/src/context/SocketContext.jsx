@@ -153,7 +153,7 @@ import toast from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Import a notification sound
-const notificationSound = './notif.wav'; // Adjust the path as needed
+const notificationSound = '/notif.wav';
 
 const SocketContext = createContext();
 

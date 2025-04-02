@@ -24,7 +24,8 @@ RUN pip install --no-cache-dir tensorflow==2.10.0
 RUN pip install --no-cache-dir deepface==0.0.75
 
 # Exposer le port utilisé par l'application Flask
-EXPOSE 5001
+# EXPOSE 5001
+EXPOSE ${PORT:-5001}
 
 # Commande pour démarrer l'application Flask
 CMD ["python", "DetectEmotion.py"]

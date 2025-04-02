@@ -27,7 +27,7 @@ const RightPanel = () => {
 		},
 	});
 
-	const { follow, isPending } = useFollow();
+	const { follow, loadingUser } = useFollow();
 
 	if (suggestedUsers?.length === 0) return <div className='md:w-64 w-0'></div>;
 
@@ -73,7 +73,7 @@ const RightPanel = () => {
 											follow(user._id);
 										}}
 									>
-										{isPending ? <LoadingSpinner size='sm' /> : "Follow"}
+										{loadingUser === user._id ? <LoadingSpinner size='sm' /> : "Follow"}
 									</button>
 								</div>
 							</Link>

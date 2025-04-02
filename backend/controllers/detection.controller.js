@@ -7,7 +7,7 @@ import path from 'path';
 import Post from '../models/Post.js';
 
 
-const EMOTION_API_URL = process.env.EMOTION_API_URL || 'https://emotion-detection-api-zgj6.onrender.com';
+const EMOTION_API_URL = process.env.EMOTION_API_URL || 'https://detection-emotion-service.onrender.com';
 
 
 export const detectEmotion = async (req, res) => {

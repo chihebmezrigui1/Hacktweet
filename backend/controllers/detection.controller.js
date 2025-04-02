@@ -60,6 +60,7 @@ export const detectEmotion = async (req, res) => {
                 headers: {
                     ...formData.getHeaders(),
                 },
+                timeout: 120000,
                 maxBodyLength: Infinity,
                 maxContentLength: Infinity,
             });

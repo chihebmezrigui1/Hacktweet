@@ -13,9 +13,7 @@ const RightPanel = () => {
 		queryKey: ["suggestedUsers"],
 		queryFn: async () => {
 			try {
-				const res = await fetchWithAuth(`/api/users/suggested`,{
-					credentials: 'include'
-				});
+				const res = await fetchWithAuth(`/api/users/suggested`);
 				const data = await res.json();
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong!");
@@ -82,5 +80,7 @@ const RightPanel = () => {
 			</div>
 		</div>
 	);
+};
+export default RightPanel;
 };
 export default RightPanel;

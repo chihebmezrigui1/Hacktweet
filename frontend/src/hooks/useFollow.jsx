@@ -10,8 +10,8 @@ const useFollow = () => {
 			try {
 				const res = await fetch(`${API_URL}/api/users/follow/${userId}`, {
 					method: "POST",
-					credentials : "include"
 				});
+
 				const data = await res.json();
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong!");
@@ -31,6 +31,8 @@ const useFollow = () => {
 			toast.error(error.message);
 		},
 	});
+
 	return { follow, isPending };
 };
+
 export default useFollow;

@@ -183,6 +183,12 @@ def home():
     </body>
     </html>
     """
+import psutil
+
+@app.route("/memory")
+def check_memory():
+    mem = psutil.virtual_memory()
+    return f"Total: {mem.total / 1024**2:.2f} MB, Used: {mem.used / 1024**2:.2f} MB, Free: {mem.available / 1024**2:.2f} MB"
 @app.route('/ping', methods=['GET'])
 def ping():
     return jsonify({"status": "ok", "message": "Service is running"})

@@ -6,6 +6,10 @@ import fs from 'fs';
 import path from 'path';
 import Post from '../models/Post.js';
 
+
+const EMOTION_API_URL = process.env.EMOTION_API_URL || 'https://emotion-detection-api-zgj6.onrender.com';
+
+
 export const detectEmotion = async (req, res) => {
     // Logs de débogage réduits pour améliorer les performances
     console.log('==================== DÉBUT DÉTECTION ÉMOTION ====================');
@@ -52,7 +56,7 @@ export const detectEmotion = async (req, res) => {
 
         try {
             // Envoyer l'image au service de détection d'émotion avec timeout
-            const flaskResponse = await axios.post('https://emotion-detection-api-zgj6.onrender.com/detect-emotion', formData, {
+            const flaskResponse = await axios.post(`${EMOTION_API_URL}/detect-emotion`, formData, {
                 headers: {
                     ...formData.getHeaders(),
                 },

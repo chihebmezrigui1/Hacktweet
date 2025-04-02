@@ -188,6 +188,30 @@ export const SocketProvider = ({ children }) => {
       socketInstance.emit('authenticate', authUser._id);
     });
 
+    const notificationAudio = new Audio(notificationSound);
+    notificationAudio.volume = 0.5; // Réglez le volume
+
+    socketInstance.on('new-notification', (notification) => {
+      console.log('Tentative de lecture du son');
+      
+      notificationAudio.play()
+        .then(() => console.log('Son joué avec succès'))
+        .catch((error) => {
+          console.error('Erreur de lecture du son:', error);
+          console.log('Type d\'erreur:', error.name);
+          console.log('Message d\'erreur:', error.message);
+        });
+    });
+
+    const playNotificationSound = () => {
+      // Demander la lecture audio lors d'un événement utilisateur
+      document.addEventListener('click', () => {
+        notificationAudio.play()
+          .then(() => console.log('Son initialisé'))
+          .catch(error => console.error('Erreur:', error));
+      }, { once: true });
+    };
+
     // Écouter les nouvelles notifications
     socketInstance.on('new-notification', (notification) => {
       console.log('New notification received:', notification);

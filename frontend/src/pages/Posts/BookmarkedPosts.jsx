@@ -51,9 +51,9 @@ const BookmarkedPosts = () => {
         </div>
       )}
       {!isLoading && !isRefetching && bookmarkedPosts && (
-        <div>
+        <div className="w-full max-w-4xl mx-auto">
           {bookmarkedPosts.map((post) => (
-            <Post key={post._id} post={post} />
+            <Post key={post._id} post={post} isBookmarkView={true} />
           ))}
         </div>
       )}

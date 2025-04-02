@@ -10,7 +10,7 @@ import { fetchWithAuth } from "../../fetchWithAuth";
 
 const RightPanel = () => {
 	const [loadingUserId, setLoadingUserId] = useState(null);
-	const { data: suggestedUsers, isLoading } = useQuery({
+	const { data: suggestedUsers, isLoading, refetch } = useQuery({
 		queryKey: ["suggestedUsers"],
 		queryFn: async () => {
 			try {
@@ -27,6 +27,19 @@ const RightPanel = () => {
 	});
 
 	const { follow } = useFollow();
+
+	const handleFollow = (userId) => {
+		setLoadingUserId(userId);
+		follow(userId, {
+			onSuccess: () => {
+				// Refetch the suggested users list after successful follow
+				refetch();
+			},
+			onSettled: () => {
+				setLoadingUserId(null);
+			}
+		});
+	};
 
 	if (suggestedUsers?.length === 0) return <div className='md:w-64 w-0'></div>;
 
@@ -66,13 +79,10 @@ const RightPanel = () => {
 								</div>
 								<div>
 									<button
-										className='btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm'
+										className='btn bg-warning text-black hover:bg-white hover:opacity-90 rounded-full btn-sm'
 										onClick={(e) => {
 											e.preventDefault();
-											setLoadingUserId(user._id);
-											follow(user._id, {
-												onSettled: () => setLoadingUserId(null),
-											});
+											handleFollow(user._id);
 										}}
 									>
 										{loadingUserId === user._id ? <LoadingSpinner size='sm' /> : "Follow"}
@@ -86,4 +96,3 @@ const RightPanel = () => {
 	);
 };
 export default RightPanel;
-

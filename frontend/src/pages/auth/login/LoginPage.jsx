@@ -168,7 +168,7 @@ const LoginPage = () => {
 				</div>
 				
 				{/* Zone de débogage */}
-				{debugInfo && (
+				{/* {debugInfo && (
 					<div className="fixed bottom-0 left-0 right-0 p-3 bg-black text-white text-xs z-50 max-h-64 overflow-auto">
 						<div className="flex justify-between items-center mb-1">
 							<h3 className="font-bold">Débogage Mobile</h3>
@@ -181,7 +181,7 @@ const LoginPage = () => {
 						</div>
 						<pre className="whitespace-pre-wrap">{debugInfo}</pre>
 					</div>
-				)}
+				)} */}
 			</div>
 		</div>
 	);

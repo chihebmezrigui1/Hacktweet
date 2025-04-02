@@ -198,7 +198,7 @@ const HomePage = () => {
 							<div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary" style={{ backgroundColor: '#05afdf', borderColor: '#05afdf'}}></div>
 						)}
 					</div>
-					{/* <div
+					<div
 						className="flex justify-center flex-1 p-3 transition duration-300 cursor-pointer relative"
 						onClick={() => {
 							setFeedType("following");
@@ -209,7 +209,7 @@ const HomePage = () => {
 						{feedType === "following" && (
 							<div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary" style={{ backgroundColor: '#05afdf', borderColor: '#05afdf'}}></div>
 						)}
-					</div> */}
+					</div>
 				</div>
 
 				{/* SEARCH BAR */}

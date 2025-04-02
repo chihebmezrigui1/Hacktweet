@@ -22,6 +22,7 @@ RUN pip install --no-cache-dir flask==2.0.1
 RUN pip install --no-cache-dir flask_cors==3.0.10
 RUN pip install --no-cache-dir tensorflow==2.10.0
 RUN pip install --no-cache-dir deepface==0.0.75
+RUN pip install --no-cache-dir psutil
 
 # Exposer le port utilisé par l'application Flask
 # EXPOSE 5001

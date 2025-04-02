@@ -1,8 +1,8 @@
-import { useState} from "react";
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { FaRegComment, FaRegHeart, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { FaRegComment, FaRegHeart, FaTrash, FaArrowLeft, FaRetweet, FaBookmark } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
 import { FaRegBookmark } from "react-icons/fa6";
 
@@ -16,6 +16,20 @@ const PostDetail = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleDeletePost = () => {
+    document.getElementById('delete_confirm_modal').showModal();
+  };
+  
+  const confirmDeletePost = () => {
+    deletePost();
+    document.getElementById('delete_confirm_modal').close();
+  };
+  
+  const cancelDeletePost = () => {
+    setIsDeleteModalOpen(false);
+  };
 
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
@@ -28,7 +42,7 @@ const PostDetail = () => {
     queryKey: ["post", id],
     queryFn: async () => {
       try {
-        const res = await fetchWithAuth(`/api/posts/${id}`,{credentials: 'include'});
+        const res = await fetchWithAuth(`/api/posts/${id}`, {credentials: 'include'});
         const data = await res.json();
         
         if (!res.ok) {
@@ -86,10 +100,197 @@ const PostDetail = () => {
       }
     },
     onSuccess: (updatedLikes) => {
+      // Mettre à jour le post actuel
       queryClient.setQueryData(["post", id], (oldData) => {
         if (!oldData) return oldData;
         return { ...oldData, likes: updatedLikes };
       });
+      
+      // Aussi mettre à jour les autres caches liés aux posts
+      const queryKeys = [
+        ["posts"],
+        ["userPosts"],
+        ["likedPosts"],
+        ["feedPosts"],
+        ["followingPosts"],
+        ["bookmarkedPosts"],
+        ["repostedPosts"]
+      ];
+      
+      queryKeys.forEach(key => {
+        queryClient.setQueryData(key, (oldData) => {
+          if (!oldData) return oldData;
+          
+          // Si c'est un tableau direct de posts
+          if (Array.isArray(oldData)) {
+            return oldData.map((p) => {
+              if (p._id === id) {
+                return { ...p, likes: updatedLikes };
+              }
+              return p;
+            });
+          }
+          
+          // Si c'est un objet avec propriété "posts"
+          if (oldData.posts && Array.isArray(oldData.posts)) {
+            return {
+              ...oldData,
+              posts: oldData.posts.map((p) => {
+                if (p._id === id) {
+                  return { ...p, likes: updatedLikes };
+                }
+                return p;
+              })
+            };
+          }
+          
+          return oldData;
+        });
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: repostPost, isPending: isReposting } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetchWithAuth(`/api/posts/repost/${id}`, {
+          method: "POST",
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+        return data;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: (updatedReposts) => {
+      // Mettre à jour le post actuel
+      queryClient.setQueryData(["post", id], (oldData) => {
+        if (!oldData) return oldData;
+        return { ...oldData, reposts: updatedReposts };
+      });
+      
+      // Mettre à jour les autres caches liés aux posts
+      const queryKeys = [
+        ["posts"],
+        ["userPosts"],
+        ["likedPosts"],
+        ["feedPosts"],
+        ["followingPosts"],
+        ["bookmarkedPosts"],
+        ["repostedPosts"]
+      ];
+      
+      queryKeys.forEach(key => {
+        queryClient.setQueryData(key, (oldData) => {
+          if (!oldData) return oldData;
+          
+          // Si c'est un tableau direct de posts
+          if (Array.isArray(oldData)) {
+            return oldData.map((p) => {
+              if (p._id === id) {
+                return { ...p, reposts: updatedReposts };
+              }
+              return p;
+            });
+          }
+          
+          // Si c'est un objet avec propriété "posts"
+          if (oldData.posts && Array.isArray(oldData.posts)) {
+            return {
+              ...oldData,
+              posts: oldData.posts.map((p) => {
+                if (p._id === id) {
+                  return { ...p, reposts: updatedReposts };
+                }
+                return p;
+              })
+            };
+          }
+          
+          return oldData;
+        });
+      });
+      
+      toast.success(isReposted ? "Removed repost" : "Reposted successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: bookmarkPost, isPending: isBookmarking } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetchWithAuth(`/api/posts/bookmark/${id}`, {
+          method: "POST",
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+        return data;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: (updatedBookmarks) => {
+      // Mettre à jour le post actuel
+      queryClient.setQueryData(["post", id], (oldData) => {
+        if (!oldData) return oldData;
+        return { ...oldData, bookmarks: updatedBookmarks };
+      });
+      
+      // Mettre à jour les autres caches liés aux posts
+      const queryKeys = [
+        ["posts"],
+        ["userPosts"],
+        ["likedPosts"],
+        ["feedPosts"],
+        ["followingPosts"],
+        ["bookmarkedPosts"],
+        ["repostedPosts"]
+      ];
+      
+      queryKeys.forEach(key => {
+        queryClient.setQueryData(key, (oldData) => {
+          if (!oldData) return oldData;
+          
+          // Si c'est un tableau direct de posts
+          if (Array.isArray(oldData)) {
+            return oldData.map((p) => {
+              if (p._id === id) {
+                return { ...p, bookmarks: updatedBookmarks };
+              }
+              return p;
+            });
+          }
+          
+          // Si c'est un objet avec propriété "posts"
+          if (oldData.posts && Array.isArray(oldData.posts)) {
+            return {
+              ...oldData,
+              posts: oldData.posts.map((p) => {
+                if (p._id === id) {
+                  return { ...p, bookmarks: updatedBookmarks };
+                }
+                return p;
+              })
+            };
+          }
+          
+          return oldData;
+        });
+      });
+      
+      toast.success(isBookmarked ? "Removed from bookmarks" : "Added to bookmarks");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -117,22 +318,31 @@ const PostDetail = () => {
         throw new Error(error.message);
       }
     },
-    onSuccess: () => {
-        toast.success("Comment posted successfully");
-        setComment("");
-        // Invalider la requête actuelle pour forcer un rechargement avec les données complètes
-        queryClient.invalidateQueries(["post", id]);
-      },
+    onSuccess: (updatedData) => {
+      // Invalider la requête actuelle pour forcer un rechargement avec les données complètes
+      queryClient.invalidateQueries({ queryKey: ["post", id] });
+      
+      // Aussi invalider les autres requêtes liées aux posts pour garantir la cohérence
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["likedPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["bookmarkedPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["repostedPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["followingPosts"] });
+      
+      toast.success("Comment posted successfully");
+      setComment("");
+    },
     onError: (error) => {
       toast.error(error.message);
     },
   });
 
-  const handleDeletePost = () => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
-      deletePost();
-    }
-  };
+  // const handleDeletePost = () => {
+  //   if (window.confirm("Are you sure you want to delete this post?")) {
+  //     deletePost();
+  //   }
+  // };
 
   const handlePostComment = (e) => {
     e.preventDefault();
@@ -143,6 +353,16 @@ const PostDetail = () => {
   const handleLikePost = () => {
     if (isLiking) return;
     likePost();
+  };
+  
+  const handleRepostPost = () => {
+    if (isReposting) return;
+    repostPost();
+  };
+  
+  const handleBookmarkPost = () => {
+    if (isBookmarking) return;
+    bookmarkPost();
   };
 
   if (isLoading) {
@@ -183,10 +403,32 @@ const PostDetail = () => {
 
   const isMyPost = authUser && authUser._id === post.user._id;
   const isLiked = authUser && post.likes.includes(authUser._id);
+  const isBookmarked = authUser && post.bookmarks?.includes(authUser._id);
+  const isReposted = authUser && post.reposts?.includes(authUser._id);
   const formattedDate = formatPostDate(post.createdAt);
 
   return (
     <div className="flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
+
+      {/* Delete Confirmation Modal */}
+  <dialog id="delete_confirm_modal" className="modal">
+  <div className="modal-box">
+    <h3 className="font-bold text-lg">Delete Post</h3>
+    <p className="py-4">Are you sure you want to delete this post? This action cannot be undone.</p>
+    <div className="modal-action">
+      <form method="dialog">
+        <button className="btn mr-2">Cancel</button>
+        <button 
+          onClick={confirmDeletePost}
+          className="btn btn-warning"
+        >
+          {isDeleting ? <LoadingSpinner size="sm" /> : "Delete"}
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
       {/* Header */}
       <div className="flex items-center p-4 border-b border-gray-700 gap-4">
         <button 
@@ -243,6 +485,12 @@ const PostDetail = () => {
             <div className="text-sm text-gray-400">
               <span className="font-bold text-white">{post.likes.length}</span> Likes
             </div>
+            <div className="text-sm text-gray-400">
+              <span className="font-bold text-white">{post.reposts?.length || 0}</span> Reposts
+            </div>
+            <div className="text-sm text-gray-400">
+              <span className="font-bold text-white">{post.bookmarks?.length || 0}</span> Saves
+            </div>
           </div>
           
           {/* Action Buttons */}
@@ -251,8 +499,21 @@ const PostDetail = () => {
               <div className="flex gap-1 items-center group cursor-pointer">
                 <FaRegComment className="w-5 h-5 text-slate-500 group-hover:text-sky-400" />
               </div>
-              <div className="flex gap-1 items-center group cursor-pointer">
-                <BiRepost className="w-5 h-5 text-slate-500 group-hover:text-green-500" />
+              <div className="flex gap-1 items-center group cursor-pointer" onClick={handleRepostPost}>
+                {isReposting && <LoadingSpinner size="sm" />}
+                {!isReposted && !isReposting && (
+                  <BiRepost className="w-6 h-6 text-slate-500 group-hover:text-green-500" />
+                )}
+                {isReposted && !isReposting && (
+                  <FaRetweet className="w-5 h-5 text-green-500" />
+                )}
+                <span 
+                  className={`text-sm group-hover:text-green-500 ${
+                    isReposted ? "text-green-500" : "text-slate-500"
+                  }`}
+                >
+                  {post.reposts?.length || 0}
+                </span>
               </div>
               <div className="flex gap-1 items-center group cursor-pointer" onClick={handleLikePost}>
                 {isLiking && <LoadingSpinner size="sm" />}
@@ -262,9 +523,22 @@ const PostDetail = () => {
                 {isLiked && !isLiking && (
                   <FaRegHeart className="w-5 h-5 cursor-pointer text-yellow-500" />
                 )}
+                <span
+                  className={`text-sm group-hover:text-yellow-500 ${
+                    isLiked ? "text-yellow-500" : "text-slate-500"
+                  }`}
+                >
+                  {post.likes.length}
+                </span>
               </div>
-              <div className="flex items-center cursor-pointer">
-                <FaRegBookmark className="w-5 h-5 text-slate-500 hover:text-blue-400" />
+              <div className="group cursor-pointer" onClick={handleBookmarkPost}>
+                {isBookmarking && <LoadingSpinner size="sm" />}
+                {!isBookmarked && !isBookmarking && (
+                  <FaRegBookmark className="w-5 h-5 text-slate-500 group-hover:text-yellow-500" />
+                )}
+                {isBookmarked && !isBookmarking && (
+                  <FaBookmark className="w-5 h-5 text-yellow-500" />
+                )}
               </div>
             </div>
           </div>
@@ -288,7 +562,7 @@ const PostDetail = () => {
             ></textarea>
             <div className="flex justify-end mt-2">
               <button 
-                className="btn btn-primary btn-sm rounded-full px-4" 
+                className="btn btn-warning btn-sm rounded-full px-4" 
                 disabled={isCommenting || !comment.trim()}
               >
                 {isCommenting ? <LoadingSpinner size="sm" /> : "Comment"}

@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
@@ -6,15 +7,19 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FaBookmark, FaRetweet, FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { FaComment } from "react-icons/fa";
-import { BsBookmark } from "react-icons/bs"; // Import bookmark icon
-import { FaTrashAlt } from "react-icons/fa"; // Trash icon for delete
+import { BsBookmark } from "react-icons/bs";
+import { FaTrashAlt } from "react-icons/fa";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../../API";
 import { fetchWithAuth } from "../../fetchWithAuth";
+import { FaArrowLeft } from "react-icons/fa";
 
 const NotificationPage = () => {
   const queryClient = useQueryClient();
+  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
+  const navigate = useNavigate();
+
   const { data: notifications, isLoading } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
@@ -30,29 +35,42 @@ const NotificationPage = () => {
   });
 
   // Mutation for deleting a single notification
-  const { mutate: deleteNotification } = useMutation({
-	mutationFn: async (notificationId) => {
-	  try {
-		const res = await fetchWithAuth(`/api/notifications/${notificationId}`, {
-		  method: "DELETE",
-      credentials: 'include'
-		});
-		const data = await res.json();
-		if (!res.ok) throw new Error(data.error || "Something went wrong");
-		return data;
-	  } catch (error) {
-		throw new Error(error);
-	  }
-	},
-	onSuccess: () => {
-	  toast.success("Notification deleted successfully");
-	  queryClient.invalidateQueries({ queryKey: ["notifications"] });
-	},
-	onError: (error) => {
-	  toast.error(error.message);
-	},
+  const { mutate: deleteNotification, isPending: isDeleting } = useMutation({
+    mutationFn: async (notificationId) => {
+      try {
+        const res = await fetchWithAuth(`/api/notifications/${notificationId}`, {
+          method: "DELETE",
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Notification deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
-  
+
+  // Handler for opening the delete confirmation modal
+  const handleDeleteNotification = (notificationId, e) => {
+    e.stopPropagation(); // Prevent notification click event
+    setSelectedNotificationId(notificationId);
+    document.getElementById('delete_notification_modal').showModal();
+  };
+
+  // Handler for confirming deletion
+  const confirmDeleteNotification = () => {
+    if (selectedNotificationId) {
+      deleteNotification(selectedNotificationId);
+    }
+  };
 
   // Helper function to get notification message based on type
   const getNotificationMessage = (notification) => {
@@ -114,22 +132,28 @@ const NotificationPage = () => {
 
     // Listen for the 'notification-deleted' event
     socket.on('notification-deleted', (notificationId) => {
-        // Remove the notification from the local state (e.g., from notifications list)
-        setNotifications(prevNotifications =>
-            prevNotifications.filter(notification => notification._id !== notificationId)
-        );
+      // Remove the notification from the local state (e.g., from notifications list)
+      setNotifications(prevNotifications =>
+        prevNotifications.filter(notification => notification._id !== notificationId)
+      );
     });
 
     return () => {
-        socket.off('notification-deleted'); // Cleanup on component unmount
+      socket.off('notification-deleted'); // Cleanup on component unmount
     };
-}, []);
+  }, []);
 
   return (
-    <div className='flex-[4_4_0] border-l border-r border-gray-700 min-h-screen'>
-      <div className='flex justify-between items-center p-4 border-b border-gray-700'>
+    <div className="flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
+      <div className="flex items-center p-4 border-b border-gray-700 gap-4">
+        <button 
+                  onClick={() => navigate(-1)} 
+                  className="text-gray-400 hover:text-white"
+                >
+                  <FaArrowLeft />
+                </button>
         <p className='font-bold'>Notifications</p>
-        <div className='dropdown '>
+        {/* <div className='dropdown '>
           <div tabIndex={0} role='button' className='m-1'>
             <IoSettingsOutline className='w-4' />
           </div>
@@ -138,10 +162,10 @@ const NotificationPage = () => {
             className='dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52'
           >
             <li>
-              <a onClick={() => { /* handle delete all notifications */ }}>Delete all notifications</a>
+              <a>Delete all notifications</a>
             </li>
           </ul>
-        </div>
+        </div> */}
       </div>
 
       {isLoading && (
@@ -196,10 +220,7 @@ const NotificationPage = () => {
             {/* Delete button for individual notification */}
             <div className='ml-2'>
               <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent notification click event
-                  deleteNotification(notification._id);
-                }}
+                onClick={(e) => handleDeleteNotification(notification._id, e)}
                 className="text-red-500 hover:text-gray-700"
               >
                 <FaTrashAlt className="w-5 h-5" />
@@ -208,6 +229,28 @@ const NotificationPage = () => {
           </div>
         </div>
       ))}
+
+      {/* DaisyUI Delete Confirmation Modal */}
+      <dialog id="delete_notification_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Delete Notification</h3>
+          <p className="py-4">Are you sure you want to delete this notification?</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn btn-outline mr-2">Cancel</button>
+              <button 
+                onClick={confirmDeleteNotification}
+                className="btn btn-warning"
+              >
+                {isDeleting ? <LoadingSpinner size="sm" /> : "Delete"}
+              </button>
+            </form>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { API_URL } from "../../API";
 import { fetchWithAuth } from "../../fetchWithAuth";
 
 const RightPanel = () => {
+	const [loadingUserId, setLoadingUserId] = useState(null);
 	const { data: suggestedUsers, isLoading } = useQuery({
 		queryKey: ["suggestedUsers"],
 		queryFn: async () => {
@@ -25,7 +26,7 @@ const RightPanel = () => {
 		},
 	});
 
-	const { follow, isPending } = useFollow();
+	const { follow } = useFollow();
 
 	if (suggestedUsers?.length === 0) return <div className='md:w-64 w-0'></div>;
 
@@ -68,10 +69,13 @@ const RightPanel = () => {
 										className='btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm'
 										onClick={(e) => {
 											e.preventDefault();
-											follow(user._id);
+											setLoadingUserId(user._id);
+											follow(user._id, {
+												onSettled: () => setLoadingUserId(null),
+											});
 										}}
 									>
-										{isPending ? <LoadingSpinner size='sm' /> : "Follow"}
+										{loadingUserId === user._id ? <LoadingSpinner size='sm' /> : "Follow"}
 									</button>
 								</div>
 							</Link>

@@ -808,12 +808,12 @@ const Post = ({ post , isBookmarkView = false}) => {
 <div className={`flex gap-2 items-start p-4 ${isBookmarkView ? 'border-none' : 'border-b border-gray-700'}`}>
 {/* DaisyUI Delete Confirmation Modal */}
 				<dialog id={`delete_modal_${post._id}`} className="modal">
-					<div className="modal-box">
-						<h3 className="font-bold text-lg">Delete Post</h3>
-						<p className="py-4">Are you sure you want to delete this post? This action cannot be undone.</p>
+					<div className="modal-box bg-[#1c222a]">
+						<h3 className="font-bold text-lg text-white">Delete Post</h3>
+						<p className="py-4 text-white">Are you sure you want to delete this post? This action cannot be undone.</p>
 						<div className="modal-action">
 							<form method="dialog">
-								<button className="btn btn-outline mr-2">Cancel</button>
+								<button className="btn btn-outline mr-2 text-white">Cancel</button>
 								<button
 									onClick={confirmDeletePost}
 									className="btn btn-warning"
@@ -834,7 +834,7 @@ const Post = ({ post , isBookmarkView = false}) => {
 				</div>
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
-						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
+						<Link to={`/profile/${postOwner.username}`} className='font-bold text-gray-200'>
 							{postOwner.fullName}
 						</Link>
 						<span className='text-gray-700 flex gap-1 text-sm'>
@@ -845,7 +845,7 @@ const Post = ({ post , isBookmarkView = false}) => {
 						{isMyPost && (
 							<span className='flex justify-end flex-1'>
 								{!isDeleting && (
-									<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
+									<FaTrash className='text-gray-200 cursor-pointer hover:text-red-500 ' onClick={handleDeletePost} />
 								)}
 
 								{isDeleting && <LoadingSpinner size='sm' />}
@@ -853,7 +853,7 @@ const Post = ({ post , isBookmarkView = false}) => {
 						)}
 					</div>
 					<div className='flex flex-col gap-3 overflow-hidden'>
-						<span>{post.text}</span>
+						<span className="text-white">{post.text}</span>
 						{post.img && (
 							<img
 								src={post.img}
@@ -875,8 +875,8 @@ const Post = ({ post , isBookmarkView = false}) => {
 							</div>
 							{/* We're using Modal Component from DaisyUI */}
 							<dialog id={`comments_modal${post._id}`} className='modal border-none outline-none'>
-								<div className='modal-box rounded border border-gray-600'>
-									<h3 className='font-bold text-lg mb-4'>COMMENTS</h3>
+								<div className=' bg-[#1c222a] modal-box rounded border border-gray-600'>
+									<h3 className='font-bold text-lg mb-4 text-gray-200'>COMMENTS</h3>
 									<div className='flex flex-col gap-3 max-h-60 overflow-auto'>
 										{post.comments.length === 0 && (
 											<p className='text-sm text-slate-500'>
@@ -894,12 +894,12 @@ const Post = ({ post , isBookmarkView = false}) => {
 												</div>
 												<div className='flex flex-col'>
 													<div className='flex items-center gap-1'>
-														<span className='font-bold'>{comment.user.fullName}</span>
-														<span className='text-gray-700 text-sm'>
+														<span className='font-bold text-white'>{comment.user.fullName}</span>
+														<span className='text-gray-300 text-sm'>
 															@{comment.user.username}
 														</span>
 													</div>
-													<div className='text-sm'>{comment.text}</div>
+													<div className='text-sm text-white'>{comment.text}</div>
 												</div>
 											</div>
 										))}
@@ -909,7 +909,7 @@ const Post = ({ post , isBookmarkView = false}) => {
 										onSubmit={handlePostComment}
 									>
 										<textarea
-											className='textarea w-full p-1 rounded text-md resize-none border focus:outline-none  border-gray-800'
+											className='bg-[#1c222a] text-gray-200 textarea w-full p-1 rounded text-md resize-none border focus:outline-none  border-gray-800'
 											placeholder='Add a comment...'
 											value={comment}
 											onChange={(e) => setComment(e.target.value)}

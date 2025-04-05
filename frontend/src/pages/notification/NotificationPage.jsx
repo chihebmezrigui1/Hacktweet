@@ -144,7 +144,7 @@ const NotificationPage = () => {
   }, []);
 
   return (
-    <div className="flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
+    <div className=" bg-[#1c222a]  flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
       <div className="flex items-center p-4 border-b border-gray-700 gap-4">
         <button 
                   onClick={() => navigate(-1)} 
@@ -152,7 +152,7 @@ const NotificationPage = () => {
                 >
                   <FaArrowLeft />
                 </button>
-        <p className='font-bold'>Notifications</p>
+        <p className='font-bold text-white'>Notifications</p>
         {/* <div className='dropdown '>
           <div tabIndex={0} role='button' className='m-1'>
             <IoSettingsOutline className='w-4' />
@@ -174,7 +174,7 @@ const NotificationPage = () => {
         </div>
       )}
 
-      {notifications?.length === 0 && <div className='text-center p-4 font-bold'>No notifications 🤔</div>}
+      {notifications?.length === 0 && <div className='text-center p-4 font-bold text-whiteNo'>No notifications 🤔</div>}
 
       {notifications?.map((notification) => (
         <div
@@ -199,7 +199,7 @@ const NotificationPage = () => {
                   <span className={`font-bold text-blue-400 ${!notification.read ? 'font-bold' : 'font-normal'}`}>
                     @{notification.from.username}
                   </span>
-                  <span style={{marginLeft:5}} className={`${!notification.read ? 'font-bold' : 'font-normal'}`}>
+                  <span style={{marginLeft:5}} className={` text-white  ${!notification.read ? 'font-bold ' : 'font-normal'}`}>
                     {getNotificationMessage(notification)}
                   </span>
                 </div>

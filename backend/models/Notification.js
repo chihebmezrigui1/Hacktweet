@@ -15,7 +15,7 @@ const notificationSchema = new mongoose.Schema(
 		type: {
 			type: String,
 			required: true,
-			enum: ["follow", "like", "comment","bookmarked","repost"], // Ajoutez "comment" à la liste des types autorisés
+			enum: ["follow", "like", "comment","bookmarked","repost","message"], // Ajoutez "comment" à la liste des types autorisés
 		},
 		post: {
 			type: mongoose.Schema.Types.ObjectId,

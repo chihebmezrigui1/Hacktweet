@@ -159,3 +159,61 @@ export const updateUser = async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 };
+
+export const getUsersForSidebar = async (req, res) => {
+
+	try {
+	  const loggedInUserId = req.user._id;
+  
+	  // Find all users except the logged-in user
+	  const users = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+  
+	  if (!users || users.length === 0) {
+		return res.status(200).json([]); 
+		// Return empty array instead of error
+	  }
+
+	  // Return all users
+	  res.status(200).json(users);
+	} catch (error) {
+	  console.error("Error in getUsersForSidebar: ", error.message);
+	  res.status(500).json({ error: "Internal server error" });
+	}
+	
+  };
+
+  export const getUserById = async (req, res) => {
+	const { id } = req.params;
+  
+	try {
+	  const user = await User.findById(id).select("-password");
+	  if (!user) return res.status(404).json({ message: "User not found" });
+  
+	  res.status(200).json(user);
+	} catch (error) {
+	  console.log("Error in getUserById: ", error.message);
+	  res.status(500).json({ error: error.message });
+	}
+  };
+  
+  export const getFollowingUsers = async (req, res) => {
+	try {
+	  const { username } = req.params;
+	  
+	  // Trouver l'utilisateur par nom d'utilisateur
+	  const user = await User.findOne({ username });
+	  if (!user) {
+		return res.status(404).json({ error: "Utilisateur non trouvé" });
+	  }
+	  
+	  // Récupérer la liste des utilisateurs suivis
+	  const following = await User.find({ 
+		_id: { $in: user.following } 
+	  }).select("-password");
+	  
+	  res.status(200).json(following);
+	} catch (error) {
+	  console.log("Error in getFollowingUsers: ", error.message);
+	  res.status(500).json({ error: "Internal server error" });
+	}
+  };

@@ -78,7 +78,7 @@ const ProfilePage = () => {
 
 	return (
 		<>
-			<div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
+			<div className='bg-[#1c222a] flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
 				{/* HEADER */}
 				{(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
 				{!isLoading && !isRefetching && !user && <p className='text-center text-lg mt-4'>User not found</p>}
@@ -87,10 +87,10 @@ const ProfilePage = () => {
 						<>
 							<div className='flex gap-10 px-4 py-2 items-center'>
 								<Link to='/'>
-									<FaArrowLeft className='w-4 h-4' />
+									<FaArrowLeft className='w-4 h-4 text-white' />
 								</Link>
 								<div className='flex flex-col'>
-									<p className='font-bold text-lg'>{user?.fullName}</p>
+									<p className='font-bold text-lg text-white'>{user?.fullName}</p>
 									<span className='text-sm text-slate-500'>{POSTS?.length} posts</span>
 								</div>
 							</div>
@@ -167,9 +167,9 @@ const ProfilePage = () => {
 
 							<div className='flex flex-col gap-4 mt-14 px-4'>
 								<div className='flex flex-col'>
-									<span className='font-bold text-lg'>{user?.fullName}</span>
+									<span className='font-bold text-lg text-white'>{user?.fullName}</span>
 									<span className='text-sm text-slate-500'>@{user?.username}</span>
-									<span className='text-sm my-1'>{user?.bio}</span>
+									<span className='text-sm my-1 text-white'>{user?.bio}</span>
 								</div>
 
 								<div className='flex gap-2 flex-wrap'>
@@ -207,7 +207,7 @@ const ProfilePage = () => {
 							</div>
 							<div className='flex w-full border-b border-gray-700 mt-4'>
     <div
-        className='flex justify-center flex-1 p-3 hover:color-secondary transition duration-300 relative cursor-pointer'
+        className='flex justify-center flex-1 p-3 hover:color-secondary transition duration-300 relative cursor-pointer text-white'
         onClick={() => setFeedType("posts")}
     >
         Posts
@@ -216,21 +216,21 @@ const ProfilePage = () => {
         )}
     </div>
     <div
-        className='flex justify-center flex-1 p-3 hover:color-secondary transition duration-300 relative cursor-pointer'
+        className='flex justify-center flex-1 p-3 hover:color-secondary transition duration-300 relative cursor-pointer text-white'
         onClick={() => setFeedType("reposts")}
     >
         Reposts
         {feedType === "reposts" && (
-            <div className='absolute bottom-0 w-10 h-1 rounded-full bg-yellow-500' />
+            <div className='absolute bottom-0 w-10 h-1 rounded-full bg-yellow-500 text-white' />
         )}
     </div>
     <div
-        className='flex justify-center flex-1 p-3 hover:color-primary transition duration-300 relative cursor-pointer'
+        className='flex justify-center flex-1 p-3 hover:color-primary transition duration-300 relative cursor-pointer text-white'
         onClick={() => setFeedType("likes")}
     >
         Likes
         {feedType === "likes" && (
-            <div className='absolute bottom-0 w-10 h-1 rounded-full bg-yellow-500' />
+            <div className='absolute bottom-0 w-10 h-1 rounded-full bg-yellow-500 text-white' />
         )}
     </div>
 </div>

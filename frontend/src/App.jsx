@@ -19,6 +19,7 @@ import { API_URL } from "./API";
 import { useEffect } from "react";
 import { isLoggedOut } from "./utils/authState";
 import { fetchWithAuth } from "./fetchWithAuth";
+import MessagesPage from "./pages/messages/MessagesPage";
 
 function App() {
 	const { data: authUser, isLoading } = useQuery({
@@ -76,8 +77,19 @@ function App() {
 
 	return (
 		// Enveloppez votre application dans le SocketProvider
-		<SocketProvider>
-			<div className='flex max-w-6xl mx-auto'>
+		<div className='bg-[#1c222a]' >
+		<Toaster 
+					position="top-right"
+					toastOptions={{
+						duration: 5000,
+						style: {
+							background: '#333',
+							color: '#fff',
+						},
+					}}
+		/>
+				<SocketProvider>
+			<div className='flex max-w-6xl mx-auto bg-[#1c222a]'>
 				{/* Common component, bc it's not wrapped with Routes */}
 				{authUser && <Sidebar />}
 				<Routes>
@@ -88,21 +100,16 @@ function App() {
 					<Route path='/profile/:username' element={authUser ? <ProfilePage /> : <Navigate to='/login' />} />
 					<Route path='/post/:id' element={authUser ? <PostDetail /> : <Navigate to='/login' />} />
 					<Route path="/bookmarks" element={<BookmarksPage />} />
+					<Route path='/messages' element={authUser ? <MessagesPage /> : <Navigate to='/login' />} />
+					<Route path='/messages/:id' element={authUser ? <MessagesPage /> : <Navigate to='/login' />} />
 				</Routes>
 				{authUser && <RightPanel />}
 				{/* Assurez-vous que le Toaster est dans le bon emplacement pour afficher les notifications */}
-				<Toaster 
-					position="top-right"
-					toastOptions={{
-						duration: 5000,
-						style: {
-							background: '#333',
-							color: '#fff',
-						},
-					}}
-				/>
+				
 			</div>
 		</SocketProvider>
+		</div>
+
 	);
 }
 

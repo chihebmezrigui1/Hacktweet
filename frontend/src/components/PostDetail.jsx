@@ -408,16 +408,16 @@ const PostDetail = () => {
   const formattedDate = formatPostDate(post.createdAt);
 
   return (
-    <div className="flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
+    <div className="bg-[#1c222a] flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
 
       {/* Delete Confirmation Modal */}
   <dialog id="delete_confirm_modal" className="modal">
-  <div className="modal-box">
-    <h3 className="font-bold text-lg">Delete Post</h3>
-    <p className="py-4">Are you sure you want to delete this post? This action cannot be undone.</p>
+  <div className="modal-box bg-[#1c222a]">
+    <h3 className="font-bold text-lg text-white">Delete Post</h3>
+    <p className="py-4 text-white">Are you sure you want to delete this post? This action cannot be undone.</p>
     <div className="modal-action">
       <form method="dialog">
-        <button className="btn mr-2">Cancel</button>
+        <button className="btn mr-2 text-white ">Cancel</button>
         <button 
           onClick={confirmDeletePost}
           className="btn btn-warning"
@@ -437,7 +437,7 @@ const PostDetail = () => {
         >
           <FaArrowLeft />
         </button>
-        <h1 className="font-bold text-lg">Post</h1>
+        <h1 className="font-bold text-lg text-gray-200">Post</h1>
       </div>
 
       {/* Post Content */}
@@ -449,7 +449,7 @@ const PostDetail = () => {
         </div>
         <div className="flex flex-col flex-1">
           <div className="flex gap-2 items-center">
-            <Link to={`/profile/${post.user.username}`} className="font-bold">
+            <Link to={`/profile/${post.user.username}`} className="text-gray-200 font-bold">
               {post.user.fullName}
             </Link>
             <span className="text-gray-700 flex gap-1 text-sm">
@@ -466,7 +466,7 @@ const PostDetail = () => {
               </span>
             )}
           </div>
-          <div className="flex flex-col gap-3 overflow-hidden mt-2">
+          <div className="text-white flex flex-col gap-3 overflow-hidden mt-2">
             <span className="text-lg">{post.text}</span>
             {post.img && (
               <img
@@ -555,7 +555,7 @@ const PostDetail = () => {
           </div>
           <div className="flex-1">
             <textarea
-              className="w-full bg-transparent border border-gray-700 rounded-md p-2 min-h-20 focus:outline-none focus:border-blue-500"
+              className=" text-white w-full bg-transparent border border-gray-700 rounded-md p-2 min-h-20 focus:outline-none focus:border-blue-500"
               placeholder="Write your comment..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -574,7 +574,7 @@ const PostDetail = () => {
 
       {/* Comments Section */}
       <div className="p-4">
-        <h2 className="font-bold text-lg mb-4">Comments</h2>
+        <h2 className="font-bold text-lg mb-4 text-white">Comments</h2>
         {post.comments.length === 0 ? (
           <p className="text-gray-500">No comments yet. Be the first to comment!</p>
         ) : (
@@ -588,18 +588,18 @@ const PostDetail = () => {
                 </div>
                 <div className="flex flex-col flex-1">
                   <div className="flex gap-2 items-center">
-                    <Link to={`/profile/${comment.user.username}`} className="font-bold">
+                    <Link to={`/profile/${comment.user.username}`} className="font-bold text-gray-200">
                       {comment.user.fullName}
                     </Link>
-                    <span className="text-gray-700 text-sm">
+                    <span className="text-gray-700 text-sm ">
                       @{comment.user.username}
                     </span>
-                    <span className="text-gray-700 text-sm">·</span>
+                    <span className="text-gray-700 text-sm ">·</span>
                     <span className="text-gray-700 text-sm">
                       {formatPostDate(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="mt-1">{comment.text}</p>
+                  <p className="mt-1 text-gray-700">{comment.text}</p>
                 </div>
               </div>
             ))}

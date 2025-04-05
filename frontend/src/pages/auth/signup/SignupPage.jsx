@@ -96,7 +96,7 @@ const SignUpPage = () => {
 			<div className=' bg-[#1c222a] flex-1 flex flex-col justify-center items-center'>
 				<form className='lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col' onSubmit={handleSubmit}>
 					{/* <XSvg className='w-24 lg:hidden fill-white' /> */}
-					<h1 className='text-4xl font-extrabold text-white'>Join today.</h1>
+					<h1 className='text-4xl font-extrabold text-white'>Join Hacktweet.</h1>
 					<label className='input input-bordered rounded flex items-center gap-2'>
 						<MdOutlineMail />
 						<input

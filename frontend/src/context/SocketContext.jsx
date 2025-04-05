@@ -373,7 +373,7 @@ export const SocketProvider = ({ children }) => {
         />
         <div>
           <p className="font-bold">@{sender.username || 'Utilisateur'}</p>
-          <p className="truncate max-w-xs">{message || 'Vous a envoyé un message'}</p>
+          <p className="truncate max-w-xs">{message || 'sent you a message'}</p>
         </div>
       </div>,
       {
@@ -392,13 +392,13 @@ export const SocketProvider = ({ children }) => {
   // Fonction pour générer le texte de notification
   const getNotificationText = useCallback((notification) => {
     switch (notification.type) {
-      case "like": return "a aimé votre post";
-      case "comment": return "a commenté votre post";
-      case "follow": return "a commencé à vous suivre";
-      case "repost": return "a repartagé votre post";
-      case "bookmarked": return "a ajouté votre post aux favoris";
-      case "message": return "vous a envoyé un message";
-      default: return "a interagi avec votre contenu";
+      case "like": return "liked your post";
+      case "comment": return "commented on your post";
+      case "follow": return "started following you";
+      case "repost": return "shared your post";
+      case "bookmarked": return "added your post to favorites";
+      case "message": return "sent you a message";
+      default: return "interacted with your content";
     }
   }, []);
 
@@ -474,15 +474,15 @@ export const SocketProvider = ({ children }) => {
         // Toast pour les autres types de notifications
         toast(
           <div 
-            className="flex items-center space-x-2 cursor-pointer" 
-            onClick={() => {
-              if (notification.post) {
-                window.location.href = `/post/${notification.post}`;
-              } else if (notification.type === 'follow') {
-                window.location.href = `/profile/${notification.from.username}`;
-              }
-            }}
-          >
+          className="flex items-center space-x-2 cursor-pointer" 
+          onClick={() => {
+            if (notification.post) {
+              window.location.href = `/post/${notification.post}`;
+            } else if (notification.type === 'follow') {
+              window.location.href = `/profile/${notification.from.username}`;
+            }
+          }}
+        >
             <img 
               src={notification.from.profileImg || "/avatar-placeholder.png"} 
               alt="User" 

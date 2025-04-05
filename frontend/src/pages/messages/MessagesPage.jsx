@@ -761,31 +761,49 @@ const MessagesPage = () => {
             </div>
           )}
 
-          {loadingMessages ? (
-            <div className="flex justify-center items-center h-full">
-              <LoadingSpinner size="lg" />
-            </div>
-          ) : displayedMessages.length > 0 ? (
-            displayedMessages.map(msg => {
-              const isOwn = msg.senderId === authUser?._id;
-              return (
-                <div key={msg._id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${isOwn ? "bg-blue-600 text-white rounded-br-none" : "bg-gray-800 text-white rounded-bl-none"}`}>
-                    <p>{msg.message}</p>
-                    <p className="text-xs text-gray-300 mt-1 text-right">{formatMessageTime(msg.createdAt)}</p>
-                  </div>
-                </div>
-              );
-            })
-          ) : chatUser ? (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Start a conversation with @{chatUser.username}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              User not found
-            </div>
-          )}
+{loadingMessages ? (
+  <div className="flex justify-center items-center h-full">
+    <LoadingSpinner size="lg" />
+  </div>
+) : displayedMessages.length > 0 ? (
+  displayedMessages.map(msg => {
+    const isOwn = msg.senderId === authUser?._id;
+    return (
+      <div key={msg._id} className={`flex ${isOwn ? "justify-end" : "justify-start"} items-end mb-4`}>
+        {!isOwn && (
+          <div className="mr-2 min-w-[32px]">
+            <img 
+              src={chatUser?.profileImg || "/avatar-placeholder.png"} 
+              alt={chatUser?.username || "User"} 
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          </div>
+        )}
+        <div className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${isOwn ? "bg-blue-600 text-white rounded-br-none" : "bg-gray-800 text-white rounded-bl-none"}`}>
+          <p>{msg.message}</p>
+          <p className="text-xs text-gray-300 mt-1 text-right">{formatMessageTime(msg.createdAt)}</p>
+        </div>
+        {isOwn && (
+          <div className="ml-2 min-w-[32px]">
+            <img 
+              src={authUser?.profileImg || "/avatar-placeholder.png"} 
+              alt={authUser?.username || "You"} 
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          </div>
+        )}
+      </div>
+    );
+  })
+) : chatUser ? (
+  <div className="flex items-center justify-center h-full text-gray-500">
+    Start a conversation with @{chatUser.username}
+  </div>
+) : (
+  <div className="flex items-center justify-center h-full text-gray-500">
+    User not found
+  </div>
+)}
           <div ref={messagesEndRef} />
         </div>
         <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700">

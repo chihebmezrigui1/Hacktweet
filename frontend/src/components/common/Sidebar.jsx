@@ -404,7 +404,14 @@ const { mutate: logoutMutation } = useMutation({
         if (!res.ok) {
           throw new Error('Failed to fetch unread count');
         }
-        return res.json();
+        const data = await res.json();
+        
+        // Filter out message-type notifications
+        const filteredNotifications = data.filter(
+          notification => notification.type !== 'message'
+        );
+        
+        return { count: filteredNotifications.length };
       } catch (error) {
         console.error('Error fetching unread count:', error);
         return { count: 0 };
@@ -414,7 +421,6 @@ const { mutate: logoutMutation } = useMutation({
     refetchInterval: 60000,
     enabled: !!authUser, // Activer seulement si l'utilisateur est connecté
   });
-
   // Ajout de la requête pour le compteur de messages non lus
   const { data: unreadMessageCount = { count: 0 } } = useQuery({
     queryKey: ['unreadMessageCount'],

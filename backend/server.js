@@ -191,42 +191,46 @@ const server = http.createServer(app);
 // Configuration CORS unifiée pour Express et Socket.IO
 const corsOptions = {
   origin: function(origin, callback) {
-    // Autorise les requêtes sans origine (crucial pour les mobiles)
+    // Permet les requêtes sans origine (ex: applications mobiles, Postman)
     if (!origin) return callback(null, true);
     
     // Liste de domaines autorisés
     const allowedDomains = [
       'http://localhost:3000',
-      'https://hacktweet.onrender.com',
-      // Ajoutez ici d'autres origines nécessaires
+      'https://hacktweet.onrender.com'
     ];
     
     // Autorise les domaines onrender.com contenant 'hacktweet'
-    if (origin && origin.includes('hacktweet') && origin.includes('onrender.com')) {
+    if (origin.includes('hacktweet') && origin.includes('onrender.com')) {
       return callback(null, true);
     }
     
     // Vérifie si l'origine est dans la liste des domaines autorisés
-    if (allowedDomains.indexOf(origin) !== -1) {
+    if (allowedDomains.includes(origin)) {
       return callback(null, true);
     }
     
-    // Pour le débogage et le développement, autoriser toutes les origines
-    // En production, vous devriez commenter cette ligne
-    return callback(null, true);
+    // En mode développement, on peut permettre toutes les origines
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
     
-    callback(new Error('Bloqué par la politique CORS'));
+    // Sinon, on rejette la requête
+    callback(new Error('Non autorisé par CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With']
 };
-
 // Initialiser Socket.IO avec la configuration CORS unifiée
 const io = new Server(server, {
-  cors: corsOptions
+  cors: {
+    origin: ['https://hacktweet.onrender.com', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }
 });
-
 // Stockage des connexions d'utilisateurs
 const userSockets = {};
 
@@ -273,6 +277,27 @@ io.on("connection", (socket) => {
       }
     }
   });
+});
+
+// Middleware pour les en-têtes CORS explicites
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && (
+      origin.includes('hacktweet.onrender.com') || 
+      origin === 'http://localhost:3000' ||
+      origin.includes('hacktweet') && origin.includes('onrender.com'))
+  ) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  next();
+});
+
+// Gérer les requêtes OPTIONS explicitement
+app.options('*', (req, res) => {
+  res.sendStatus(200);
 });
 
 // Body parser middleware with increased limits

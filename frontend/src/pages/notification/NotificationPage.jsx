@@ -1,14 +1,11 @@
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { IoTrash } from "react-icons/io5";
 import { FaBookmark, FaRetweet, FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
-import { FaComment } from "react-icons/fa";
-import { FaTrashAlt } from "react-icons/fa";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaComment, FaTrashAlt, FaArrowLeft } from "react-icons/fa";
 import { fetchWithAuth } from "../../fetchWithAuth";
 import { io } from "socket.io-client";
 import { API_URL } from "../../API";
@@ -33,7 +30,7 @@ const NotificationPage = () => {
   }, [queryClient]);
 
   // Fetch notifications
-  const { data: notifications, isLoading } = useQuery({
+  const { data: rawNotifications, isLoading } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
@@ -46,6 +43,11 @@ const NotificationPage = () => {
       }
     },
   });
+
+  // Filter out message-type notifications
+  const notifications = rawNotifications?.filter(
+    notification => notification.type !== 'message'
+  ) || [];
 
   // Mutation for deleting ALL notifications
   const { mutate: deleteAllNotifications, isPending: isDeletingAll } = useMutation({
@@ -146,15 +148,14 @@ const NotificationPage = () => {
         </div>
         
         {/* Delete All Notifications Button */}
-        {notifications?.length > 0 && (
+        {notifications.length > 0 && (
           <button 
             onClick={() => {
               document.getElementById('delete_all_notifications_modal').showModal();
             }}
-            className="text-red-500 hover:text-red-700 flex items-center gap-2"
+            className="text-white hover:text-gray-300 flex items-center gap-2"
           >
-            {/* <IoTrash className="w-5 h-5" /> */}
-            <span className="hidden md:inline text-white">Clear Notifications</span>
+            <span className="hidden md:inline">Clear Notifications</span>
           </button>
         )}
       </div>
@@ -165,11 +166,11 @@ const NotificationPage = () => {
         </div>
       )}
 
-      {notifications?.length === 0 && (
+      {notifications.length === 0 && (
         <div className='text-center p-4 font-bold text-white'>No notifications 🤔</div>
       )}
 
-      {notifications?.map((notification) => (
+      {notifications.map((notification) => (
         <div
           key={notification._id}
           className={`border-b border-gray-700 ${!notification.read ? 'bg-gray-800' : ''}`}
@@ -223,12 +224,12 @@ const NotificationPage = () => {
 
       {/* Delete Single Notification Modal */}
       <dialog id="delete_notification_modal" className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Delete Notification</h3>
-          <p className="py-4">Are you sure you want to delete this notification?</p>
+        <div className="modal-box bg-[#1c222a]">
+          <h3 className="font-bold text-lg text-white">Delete Notification</h3>
+          <p className="py-4 text-white">Are you sure you want to delete this notification?</p>
           <div className="modal-action">
             <form method="dialog">
-              <button className="btn btn-outline mr-2">Cancel</button>
+              <button className="btn btn-outline mr-2 text-white">Cancel</button>
               <button 
                 onClick={confirmDeleteNotification}
                 className="btn btn-warning"
@@ -245,12 +246,12 @@ const NotificationPage = () => {
 
       {/* Delete All Notifications Modal */}
       <dialog id="delete_all_notifications_modal" className="modal">
-        <div className="modal-box">
+        <div className="modal-box bg-[#1c222a]">
           <h3 className="font-bold text-lg text-white">Delete All Notifications</h3>
           <p className="py-4 text-gray-300">Are you sure you want to delete all notifications?</p>
           <div className="modal-action">
             <form method="dialog">
-              <button className="btn btn-outline mr-2">Cancel</button>
+              <button className="btn btn-outline mr-2 text-white">Cancel</button>
               <button 
                 onClick={() => deleteAllNotifications()}
                 className="btn btn-warning"

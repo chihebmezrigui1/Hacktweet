@@ -143,7 +143,7 @@ const ProfilePage = () => {
 								{isMyProfile && <EditProfileModal authUser={authUser} />}
 								{!isMyProfile && (
 									<button
-										className='btn btn-outline rounded-full btn-sm'
+										className='btn btn-outline rounded-full btn-sm text-black bg-white'
 										onClick={() => follow(user?._id)}
 									>
 										{isPending && "Loading..."}

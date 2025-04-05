@@ -446,7 +446,6 @@
 // };
 
 // export default MessagesPage;
-
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -462,6 +461,7 @@ const MessagesPage = () => {
   const [message, setMessage] = useState("");
   const [showOnline, setShowOnline] = useState(true);
   const [showOffline, setShowOffline] = useState(false);
+  const [messageLimit, setMessageLimit] = useState(10);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -474,7 +474,6 @@ const MessagesPage = () => {
     queryKey: ["followingUsers"],
     queryFn: async () => {
       try {
-        // Récupérer les utilisateurs que l'utilisateur authentifié suit
         const res = await fetchWithAuth(`/api/users/following/${authUser.username}`, {
           credentials: "include",
         });
@@ -500,7 +499,7 @@ const MessagesPage = () => {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Something went wrong");
-        return data;
+        return data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
       } catch (error) {
         console.error("Error fetching messages:", error);
         return [];
@@ -512,7 +511,10 @@ const MessagesPage = () => {
     staleTime: 1000,
   });
 
-  // Trouver l'utilisateur directement dans la liste des utilisateurs suivis
+  // Calculate displayed messages with pagination
+  const displayedMessages = messages.slice(-messageLimit);
+
+  // Find user directly in following users list
   const chatUser = chatUserId
     ? followingUsers.find(user => user._id === chatUserId)
     : null;
@@ -568,6 +570,11 @@ const MessagesPage = () => {
     sendMessageMutation({ receiverId: chatUserId, message: message.trim() });
   };
 
+  // Load more messages
+  const loadMoreMessages = () => {
+    setMessageLimit(prev => prev + 10);
+  };
+
   // Socket listener for new messages
   useEffect(() => {
     if (!socket) return;
@@ -588,169 +595,224 @@ const MessagesPage = () => {
   }, [socket, chatUserId, queryClient]);
 
   useEffect(() => { if (chatUserId) markMessagesAsRead(chatUserId); }, [chatUserId]);
-  const scrollToBottom = () => { if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); };
-  useEffect(() => { if (messages.length > 0) scrollToBottom(); }, [messages]);
+  
+  const scrollToBottom = () => { 
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); 
+    }
+  };
+  
+  useEffect(() => { 
+    if (messages.length > 0) {
+      scrollToBottom(); 
+      // Reset message limit to 10 when conversation changes
+      setMessageLimit(10);
+    } 
+  }, [messages, chatUserId]);
+
   const formatMessageTime = (timestamp) => new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
   const isUserOnline = (userId) => Array.isArray(onlineUsers) && onlineUsers.includes(userId?.toString());
+  
   const sortedUsers = [...(followingUsers || [])].sort((a, b) => isUserOnline(b._id) - isUserOnline(a._id));
+  
   const onlineUsersCount = sortedUsers.filter(user => isUserOnline(user._id)).length;
 
   return (
     <div className="bg-[#1c222a] flex-[4_4_0] border-l border-r border-gray-700 min-h-screen flex">
-      {/* Sidebar */}
-      <div className="w-1/3 border-r border-gray-700 flex flex-col">
-        <div className="p-4 border-b border-gray-700">
-          <h2 className="font-bold text-lg">Messages</h2>
-          <p className="text-xs text-gray-400">
-            {onlineUsers ? `${onlineUsersCount} abonnements en ligne` : "Chargement..."}
-          </p>
-        </div>
+    {/* Sidebar */}
+  <div className="w-1/3 border-r border-gray-700 flex flex-col h-screen max-h-screen overflow-hidden">
+    <div className="p-4 border-b border-gray-700">
+      <h2 className="font-bold text-lg text-white">Messages</h2>
+      <p className="text-xs text-gray-400">
+        {onlineUsers ? `${onlineUsersCount} following online` : "Loading..."}
+      </p>
+    </div>
 
-        {/* Accordion custom */}
-        <div className="flex-1 overflow-y-auto divide-y divide-gray-800">
-          {/* Online */}
-          <div>
-            <button onClick={() => setShowOnline(!showOnline)} className="w-full px-4 py-2 text-left text-sm font-semibold text-green-400 hover:bg-gray-800">
-              Abonnements en ligne ({onlineUsersCount})
-            </button>
-            {showOnline && (
-              <div className="space-y-1 px-2 pb-2">
-                {sortedUsers.filter(u => isUserOnline(u._id)).map(user => (
-                  <div key={user._id} onClick={() => handleChatSelect(user._id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 cursor-pointer ${chatUserId === user._id ? "bg-gray-800" : ""} border-l-2 border-green-500`}>
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
-                        <img src={user.profileImg || "/avatar-placeholder.png"} alt={user.username} />
-                      </div>
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-black" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="font-semibold text-white truncate text-gray-200">@{user.username}</span>
-                    </div>
+    {/* Custom Accordion */}
+    <div className="flex-1 overflow-y-auto divide-y divide-gray-800">
+      {/* Online */}
+      <div>
+        <button 
+          onClick={() => setShowOnline(!showOnline)} 
+          className="w-full px-4 py-2 text-left text-sm font-semibold text-green-400 hover:bg-gray-800"
+        >
+          Online Followers ({onlineUsersCount})
+        </button>
+        {showOnline && (
+          <div className="space-y-1 px-2 pb-2 max-h-[40vh] overflow-y-auto">
+            {sortedUsers.filter(u => isUserOnline(u._id)).map(user => (
+              <div 
+                key={user._id} 
+                onClick={() => handleChatSelect(user._id)}
+                className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 cursor-pointer 
+                  ${chatUserId === user._id ? "bg-gray-800" : ""} 
+                  border-l-2 border-green-500`}
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <img 
+                      src={user.profileImg || "/avatar-placeholder.png"} 
+                      alt={user.username} 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                ))}
-                {sortedUsers.filter(u => isUserOnline(u._id)).length === 0 && (
-                  <div className="text-gray-400 text-sm p-3">
-                    Aucun abonnement en ligne pour le moment
-                  </div>
-                )}
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-black" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold text-white truncate block">@{user.username}</span>
+                </div>
+              </div>
+            ))}
+            {sortedUsers.filter(u => isUserOnline(u._id)).length === 0 && (
+              <div className="text-gray-400 text-sm p-3">
+                No followers online at the moment
               </div>
             )}
-          </div>
-
-          {/* Offline */}
-          <div>
-            <button onClick={() => setShowOffline(!showOffline)} className="w-full px-4 py-2 text-left text-sm font-semibold text-gray-400 hover:bg-gray-800">
-              Abonnements hors ligne ({sortedUsers.length - onlineUsersCount})
-            </button>
-            {showOffline && (
-              <div className="space-y-1 px-2 pb-2">
-                {sortedUsers.filter(u => !isUserOnline(u._id)).map(user => (
-                  <div key={user._id} onClick={() => handleChatSelect(user._id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 cursor-pointer ${chatUserId === user._id ? "bg-gray-800" : ""}`}>
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
-                        <img src={user.profileImg || "/avatar-placeholder.png"} alt={user.username} />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="font-semibold text-white truncate">@{user.username}</span>
-                    </div>
-                  </div>
-                ))}
-                {sortedUsers.filter(u => !isUserOnline(u._id)).length === 0 && (
-                  <div className="text-gray-400 text-sm p-3">
-                    Tous vos abonnements sont en ligne !
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Chat area */}
-      <div className="w-2/3 flex flex-col">
-        {chatUserId ? (
-          <>
-            <div className="flex items-center p-4 border-b border-gray-700">
-              <button onClick={() => navigate("/messages")} className="text-gray-400 hover:text-white mr-3 md:hidden">
-                <FaArrowLeft />
-              </button>
-              {loadingChatUser ? (
-                <LoadingSpinner size="sm" />
-              ) : chatUser ? (
-                <div className="flex items-center">
-                  <div className="relative mr-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                      <img src={chatUser.profileImg || "/avatar-placeholder.png"} alt={chatUser.username} />
-                    </div>
-                    {isUserOnline(chatUser._id) && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-black" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white">@{chatUser.username}</h3>
-                    <p className="text-xs text-gray-400">{isUserOnline(chatUser._id) ? "Online" : "Offline"}</p>
-                  </div>
-                </div>
-              ) : (
-                <h2 className="font-bold text-lg">Utilisateur non trouvé</h2>
-              )}
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {loadingMessages ? (
-                <div className="flex justify-center items-center h-full">
-                  <LoadingSpinner size="lg" />
-                </div>
-              ) : messages.length > 0 ? (
-                messages.map(msg => {
-                  const isOwn = msg.senderId === authUser?._id;
-                  return (
-                    <div key={msg._id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${isOwn ? "bg-blue-600 text-white rounded-br-none" : "bg-gray-800 text-white rounded-bl-none"}`}>
-                        <p>{msg.message}</p>
-                        <p className="text-xs text-gray-300 mt-1 text-right">{formatMessageTime(msg.createdAt)}</p>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : chatUser ? (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  Commencez une conversation avec @{chatUser.username}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  L'utilisateur est introuvable
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700">
-              <div className="flex">
-                <input 
-                  type="text" 
-                  value={message} 
-                  onChange={(e) => setMessage(e.target.value)} 
-                  placeholder="Type a message..."
-                  className="flex-1 bg-gray-800 rounded-l-full px-4 py-2 focus:outline-none text-white" 
-                />
-                <button 
-                  type="submit" 
-                  disabled={!message.trim() || isSending || !chatUser}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white rounded-r-full px-4 py-2 disabled:opacity-50"
-                >
-                  {isSending ? <LoadingSpinner size="sm" /> : <IoSend />}
-                </button>
-              </div>
-            </form>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            Sélectionnez un utilisateur pour commencer à discuter
           </div>
         )}
       </div>
+
+      {/* Offline */}
+      <div>
+        <button 
+          onClick={() => setShowOffline(!showOffline)} 
+          className="w-full px-4 py-2 text-left text-sm font-semibold text-gray-400 hover:bg-gray-800"
+        >
+          Offline Followers ({sortedUsers.length - onlineUsersCount})
+        </button>
+        {showOffline && (
+          <div className="space-y-1 px-2 pb-2 max-h-[74vh] overflow-y-auto">
+            {sortedUsers.filter(u => !isUserOnline(u._id)).map(user => (
+              <div 
+                key={user._id} 
+                onClick={() => handleChatSelect(user._id)}
+                className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 cursor-pointer 
+                  ${chatUserId === user._id ? "bg-gray-800" : ""}`}
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <img 
+                      src={user.profileImg || "/avatar-placeholder.png"} 
+                      alt={user.username} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold text-white truncate block">@{user.username}</span>
+                </div>
+              </div>
+            ))}
+            {sortedUsers.filter(u => !isUserOnline(u._id)).length === 0 && (
+              <div className="text-gray-400 text-sm p-3">
+                All your followers are online!
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+      {/* Chat area */}
+      {/* Chat area */}
+  <div className="w-2/3 flex flex-col h-[100vh] max-h-screen"> {/* Added height constraint */}
+    {chatUserId ? (
+      <>
+        <div className="flex items-center p-4 border-b border-gray-700">
+          <button onClick={() => navigate("/messages")} className="text-gray-400 hover:text-white mr-3 md:hidden">
+            <FaArrowLeft />
+          </button>
+          {loadingChatUser ? (
+            <LoadingSpinner size="sm" />
+          ) : chatUser ? (
+            <div className="flex items-center">
+              <div className="relative mr-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <img 
+                    src={chatUser.profileImg || "/avatar-placeholder.png"} 
+                    alt={chatUser.username} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {isUserOnline(chatUser._id) && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-black" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-bold text-white">@{chatUser.username}</h3>
+                <p className="text-xs text-gray-400">{isUserOnline(chatUser._id) ? "Online" : "Offline"}</p>
+              </div>
+            </div>
+          ) : (
+            <h2 className="font-bold text-lg text-white">User not found</h2>
+          )}
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4"> {/* Kept as is for scroll */}
+          {messages.length > displayedMessages.length && (
+            <div className="text-center">
+              <button 
+                onClick={loadMoreMessages}
+                className="text-sm text-gray-400 hover:text-white mb-2"
+              >
+                Load more messages ({messages.length - displayedMessages.length} remaining)
+              </button>
+            </div>
+          )}
+
+          {loadingMessages ? (
+            <div className="flex justify-center items-center h-full">
+              <LoadingSpinner size="lg" />
+            </div>
+          ) : displayedMessages.length > 0 ? (
+            displayedMessages.map(msg => {
+              const isOwn = msg.senderId === authUser?._id;
+              return (
+                <div key={msg._id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${isOwn ? "bg-blue-600 text-white rounded-br-none" : "bg-gray-800 text-white rounded-bl-none"}`}>
+                    <p>{msg.message}</p>
+                    <p className="text-xs text-gray-300 mt-1 text-right">{formatMessageTime(msg.createdAt)}</p>
+                  </div>
+                </div>
+              );
+            })
+          ) : chatUser ? (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Start a conversation with @{chatUser.username}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              User not found
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+        <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700">
+          <div className="flex">
+            <input 
+              type="text" 
+              value={message} 
+              onChange={(e) => setMessage(e.target.value)} 
+              placeholder="Type a message..."
+              className="flex-1 bg-gray-800 rounded-l-full px-4 py-2 focus:outline-none text-white" 
+            />
+            <button 
+              type="submit" 
+              disabled={!message.trim() || isSending || !chatUser}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white rounded-r-full px-4 py-2 disabled:opacity-50"
+            >
+              {isSending ? <LoadingSpinner size="sm" /> : <IoSend />}
+            </button>
+          </div>
+        </form>
+      </>
+    ) : (
+      <div className="flex-1 flex items-center justify-center text-gray-500">
+        Select a user to start chatting
+      </div>
+    )}
+  </div>
     </div>
   );
 };

@@ -1,36 +1,73 @@
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { IoSettingsOutline } from "react-icons/io5";
+import { IoTrash } from "react-icons/io5";
 import { FaBookmark, FaRetweet, FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { FaComment } from "react-icons/fa";
-import { BsBookmark } from "react-icons/bs";
 import { FaTrashAlt } from "react-icons/fa";
-import { useEffect } from "react";
+import { FaArrowLeft } from "react-icons/fa";
+import { fetchWithAuth } from "../../fetchWithAuth";
 import { io } from "socket.io-client";
 import { API_URL } from "../../API";
-import { fetchWithAuth } from "../../fetchWithAuth";
-import { FaArrowLeft } from "react-icons/fa";
 
 const NotificationPage = () => {
   const queryClient = useQueryClient();
-  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
   const navigate = useNavigate();
+  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
 
+  // Socket connection for real-time updates
+  useEffect(() => {
+    const socket = io(API_URL);
+
+    // Listen for notifications-cleared event
+    socket.on('notifications-cleared', () => {
+      queryClient.invalidateQueries(['notifications']);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [queryClient]);
+
+  // Fetch notifications
   const { data: notifications, isLoading } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
-        const res = await fetchWithAuth(`/api/notifications`,{credentials: 'include'});
+        const res = await fetchWithAuth(`/api/notifications`, {credentials: 'include'});
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Something went wrong");
         return data;
       } catch (error) {
         throw new Error(error);
       }
+    },
+  });
+
+  // Mutation for deleting ALL notifications
+  const { mutate: deleteAllNotifications, isPending: isDeletingAll } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetchWithAuth('/api/notifications', {
+          method: "DELETE",
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      toast.success("All notifications deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -58,114 +95,68 @@ const NotificationPage = () => {
     },
   });
 
-  // Handler for opening the delete confirmation modal
+  // Handler for deleting a single notification
   const handleDeleteNotification = (notificationId, e) => {
-    e.stopPropagation(); // Prevent notification click event
+    e.stopPropagation();
     setSelectedNotificationId(notificationId);
     document.getElementById('delete_notification_modal').showModal();
   };
 
-  // Handler for confirming deletion
+  // Confirm deletion of a single notification
   const confirmDeleteNotification = () => {
     if (selectedNotificationId) {
       deleteNotification(selectedNotificationId);
     }
   };
 
-  // Helper function to get notification message based on type
+  // Helper functions for notification rendering
   const getNotificationMessage = (notification) => {
     switch(notification.type) {
-      case "follow":
-        return "followed you";
-      case "like":
-        return "liked your post";
-      case "comment":
-        return "commented on your post";
-      case "bookmarked":
-        return "bookmarked your post";
-      case "repost":
-        return "reposted your post";
-      default:
-        return "interacted with you";
+      case "follow": return "followed you";
+      case "like": return "liked your post";
+      case "comment": return "commented on your post";
+      case "bookmarked": return "bookmarked your post";
+      case "repost": return "reposted your post";
+      default: return "interacted with you";
     }
   };
 
-  // Helper function to get notification icon
   const NotificationIcon = ({ type }) => {
     switch(type) {
-      case "follow":
-        return <FaUser className='w-7 h-7 text-primary' />;
-      case "like":
-        return <FaHeart className='w-7 h-7 text-pink-500' />;
-      case "comment":
-        return <FaComment className='w-7 h-7 text-green-500' />;
-      case "bookmarked":
-        return <FaBookmark className='w-7 h-7 text-blue-500' />;
-      case "repost":
-        return <FaRetweet className='w-7 h-7 text-green-500' />;
-      default:
-        return null;
+      case "follow": return <FaUser className='w-7 h-7 text-primary' />;
+      case "like": return <FaHeart className='w-7 h-7 text-pink-500' />;
+      case "comment": return <FaComment className='w-7 h-7 text-green-500' />;
+      case "bookmarked": return <FaBookmark className='w-7 h-7 text-blue-500' />;
+      case "repost": return <FaRetweet className='w-7 h-7 text-green-500' />;
+      default: return null;
     }
   };
 
-  // Function to mark notification as read when clicked
-  const markAsRead = (notificationId) => {
-    fetchWithAuth(`/api/notifications/${notificationId}/read`, {
-      method: "PUT",
-      credentials: 'include'
-    })
-    .then((res) => {
-      if (res.ok) {
-        toast.success("Notification marked as read");
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      } else {
-        toast.error("Failed to mark notification as read");
-      }
-    })
-    .catch(() => {
-      toast.error("Error occurred while marking as read");
-    });
-  };
-
-  useEffect(() => {
-    const socket = io(); // Assuming you have socket.io client initialized
-
-    // Listen for the 'notification-deleted' event
-    socket.on('notification-deleted', (notificationId) => {
-      // Remove the notification from the local state (e.g., from notifications list)
-      setNotifications(prevNotifications =>
-        prevNotifications.filter(notification => notification._id !== notificationId)
-      );
-    });
-
-    return () => {
-      socket.off('notification-deleted'); // Cleanup on component unmount
-    };
-  }, []);
-
   return (
-    <div className=" bg-[#1c222a]  flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
-      <div className="flex items-center p-4 border-b border-gray-700 gap-4">
-        <button 
-                  onClick={() => navigate(-1)} 
-                  className="text-gray-400 hover:text-white"
-                >
-                  <FaArrowLeft />
-                </button>
-        <p className='font-bold text-white'>Notifications</p>
-        {/* <div className='dropdown '>
-          <div tabIndex={0} role='button' className='m-1'>
-            <IoSettingsOutline className='w-4' />
-          </div>
-          <ul
-            tabIndex={0}
-            className='dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52'
+    <div className="bg-[#1c222a] flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
+      <div className="flex items-center justify-between p-4 border-b border-gray-700 gap-4">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="text-gray-400 hover:text-white"
           >
-            <li>
-              <a>Delete all notifications</a>
-            </li>
-          </ul>
-        </div> */}
+            <FaArrowLeft />
+          </button>
+          <p className='font-bold text-white'>Notifications</p>
+        </div>
+        
+        {/* Delete All Notifications Button */}
+        {notifications?.length > 0 && (
+          <button 
+            onClick={() => {
+              document.getElementById('delete_all_notifications_modal').showModal();
+            }}
+            className="text-red-500 hover:text-red-700 flex items-center gap-2"
+          >
+            {/* <IoTrash className="w-5 h-5" /> */}
+            <span className="hidden md:inline text-white">Clear Notifications</span>
+          </button>
+        )}
       </div>
 
       {isLoading && (
@@ -174,40 +165,41 @@ const NotificationPage = () => {
         </div>
       )}
 
-      {notifications?.length === 0 && <div className='text-center p-4 font-bold text-whiteNo'>No notifications 🤔</div>}
+      {notifications?.length === 0 && (
+        <div className='text-center p-4 font-bold text-white'>No notifications 🤔</div>
+      )}
 
       {notifications?.map((notification) => (
         <div
-          className={`border-b border-gray-700 ${!notification.read ? 'bg-gray-800' : ''}`}
           key={notification._id}
-          onClick={() => markAsRead(notification._id)} // Mark as read on click
+          className={`border-b border-gray-700 ${!notification.read ? 'bg-gray-800' : ''}`}
         >
           <div className='flex items-center gap-3 p-4'>
-            {/* User avatar */}
             <Link to={`/profile/${notification.from.username}`}>
               <div className='avatar'>
                 <div className='w-10 h-10 rounded-full'>
-                  <img src={notification.from.profileImg || "/avatar-placeholder.png"} alt={notification.from.username} />
+                  <img 
+                    src={notification.from.profileImg || "/avatar-placeholder.png"} 
+                    alt={notification.from.username} 
+                  />
                 </div>
               </div>
             </Link>
             
-            {/* Notification content */}
             <div className='flex-1'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <span className={`font-bold text-blue-400 ${!notification.read ? 'font-bold' : 'font-normal'}`}>
+                  <span className='font-bold text-blue-400'>
                     @{notification.from.username}
                   </span>
-                  <span style={{marginLeft:5}} className={` text-white  ${!notification.read ? 'font-bold ' : 'font-normal'}`}>
+                  <span className='ml-2 text-white'>
                     {getNotificationMessage(notification)}
                   </span>
                 </div>
                 <NotificationIcon type={notification.type} />
               </div>
 
-              {/* Link to post if applicable */}
-              {(notification.type === "like" || notification.type === "comment" || notification.type === "bookmarked" || notification.type === "repost") && notification.post && (
+              {(["like", "comment", "bookmarked", "repost"].includes(notification.type)) && notification.post && (
                 <Link 
                   to={`/post/${notification.post._id || notification.post}`} 
                   className='text-sm text-blue-400 hover:underline mt-1 block'
@@ -217,7 +209,6 @@ const NotificationPage = () => {
               )}
             </div>
 
-            {/* Delete button for individual notification */}
             <div className='ml-2'>
               <button
                 onClick={(e) => handleDeleteNotification(notification._id, e)}
@@ -230,7 +221,7 @@ const NotificationPage = () => {
         </div>
       ))}
 
-      {/* DaisyUI Delete Confirmation Modal */}
+      {/* Delete Single Notification Modal */}
       <dialog id="delete_notification_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Delete Notification</h3>
@@ -243,6 +234,28 @@ const NotificationPage = () => {
                 className="btn btn-warning"
               >
                 {isDeleting ? <LoadingSpinner size="sm" /> : "Delete"}
+              </button>
+            </form>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      {/* Delete All Notifications Modal */}
+      <dialog id="delete_all_notifications_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-white">Delete All Notifications</h3>
+          <p className="py-4 text-gray-300">Are you sure you want to delete all notifications?</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn btn-outline mr-2">Cancel</button>
+              <button 
+                onClick={() => deleteAllNotifications()}
+                className="btn btn-warning"
+              >
+                {isDeletingAll ? <LoadingSpinner size="sm" /> : "Delete All"}
               </button>
             </form>
           </div>
